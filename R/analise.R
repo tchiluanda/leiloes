@@ -59,8 +59,9 @@ ggplot(data_pre,
          fill = Bond.Type
          )) + 
   geom_col() +
-  labs(x = "Ano do Leilão", y = "Valor aceito", fill = "Tipo de título") + 
+  labs(x = "Ano do Leilão", y = "Valor total", fill = "Tipo de título") + 
   scale_y_continuous(labels = function(x) {paste(format(round(x/1e9)), "bi")}) +
+  scale_fill_brewer(palette = "Set2") +
   facet_wrap(~Bond.Type)
 
 
