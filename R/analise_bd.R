@@ -3,35 +3,34 @@ library(lubridate)
 library(RColorBrewer)
 library(viridis)
 library(colorspace)
+library(readxl)
 
-data_raw <- read.csv2('./dados-entrada/Historico_leiloes.csv', skip = 5)
+data_leilao_raw <- read_excel('./dados-entrada/_LEILOES/LEILAO.xlsx')
+data_titulo_raw <- read_excel('./dados-entrada/_LEILOES/LEILAO_VENCIMENTO_TITULO.xlsx')
+
+data_raw <- data_titulo_raw %>%
+  left_join(data_leilao_raw)
 
 data_pre <- data_raw %>%
-  mutate_at(vars(
-    Maturity.Date, 
-    Auction.Date), ~lubridate::dmy(.)) %>%
-  mutate_at(vars(
-    Quantity.Tendered, 
-    Quantity.Accepted, 
-    Total.Amount.Accepted..R..), ~as.numeric(str_replace(string = str_replace_all(., '\\.', ''), pattern = ",", replacement = "."))) %>%
-  mutate(duracao = interval(Auction.Date, Maturity.Date)/years(1),
+  mutate_at(vars(starts_with('DT_')), ~lubridate::dmy(.)) %>%
+  mutate(duracao = interval(DT_LEILAO, DT_VENCIMENTO_TITULO)/years(1),
          faixa_duracao = cut(duracao, 
                              breaks = c(0, 1, 2, 5, 10, 20, 30, 50),
                              labels = c('até 1 ano', '1 a 2', '2 a 5', '5 a 10', '10 a 20', '20 a 30', '30 e acima')))
 
 # data leilão x data vencimento
 ggplot(data_pre, aes(
-  y = Maturity.Date, 
-  x = Auction.Date, 
-  size = Total.Amount.Accepted..R..,
-  color = Bond.Type)) + 
+  y = DT_VENCIMENTO_TITULO, 
+  x = DT_LEILAO, 
+  size = VA_FINANCEIRO_ACEITO,
+  color = ID_TITULO)) + 
   geom_point()
 
 # data leilão x juros aceite
 graf_dataXjuros <- ggplot(data_pre, aes(
-  y = Accepted.Rate, 
-  x = Auction.Date, 
-  size = Total.Amount.Accepted..R..,
+  y = VA_TAXA_ACEITA, 
+  x = DT_LEILAO, 
+  size = VA_FINANCEIRO_ACEITO,
   #color = Bond.Type
   fill = faixa_duracao
   )) + 
@@ -44,7 +43,7 @@ graf_dataXjuros <- ggplot(data_pre, aes(
          size = FALSE) +
   theme_bw()
 
-graf_dataXjuros + facet_wrap(~Bond.Type, scales = "free")
+graf_dataXjuros + facet_wrap(~ID_TITULO, scales = "free")
 
 
 # sumarios ----------------------------------------------------------------
