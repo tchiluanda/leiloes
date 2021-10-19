@@ -27,6 +27,8 @@ ggplot(data_pre, aes(
   color = Bond.Type)) + 
   geom_point()
 
+ggsave('./plots-prototipos/amostra-leilao-vencimento.png', plot = last_plot())
+
 # data leilão x juros aceite
 graf_dataXjuros <- ggplot(data_pre, aes(
   y = Accepted.Rate, 
@@ -43,13 +45,17 @@ graf_dataXjuros <- ggplot(data_pre, aes(
   guides(fill = guide_legend(override.aes = list(size=5)),
          size = FALSE) +
   theme_bw()
+ggsave('./plots-prototipos/amostra-leilao-juros.png', plot = last_plot())
+
 
 graf_dataXjuros + facet_wrap(~Bond.Type, scales = "free")
+ggsave('./plots-prototipos/amostra-leilao-juros-multiplos.png', plot = last_plot())
 
 
 # sumarios ----------------------------------------------------------------
 
 ggplot(data_pre, aes(y = Bond.Type, x = Total.Amount.Accepted..R..)) + geom_col()
+ggsave('./plots-prototipos/amostra-total-tipo.png', plot = last_plot())
 
 #valores totais por ano, por título
 ggplot(data_pre, 
@@ -63,6 +69,7 @@ ggplot(data_pre,
   scale_y_continuous(labels = function(x) {paste(format(round(x/1e9)), "bi")}) +
   scale_fill_brewer(palette = "Set2") +
   facet_wrap(~Bond.Type)
+ggsave('./plots-prototipos/amostra-total-ano-tipo.png', plot = last_plot())
 
 
 # stats -------------------------------------------------------------------
@@ -71,7 +78,7 @@ data_pre$duracao %>% summary()
 
 ggplot(data_pre) + geom_histogram(aes(x = duracao), bins = 100) +
   facet_wrap(~Bond.Type)
-
+ggsave('./plots-prototipos/amostra-histograma-duracao.png', plot = last_plot())
 
 
 # Ideias ------------------------------------------------------------------
