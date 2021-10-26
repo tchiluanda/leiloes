@@ -68,6 +68,23 @@ ggplot(data_pre %>% filter(duracao <= 2, SG_TITULO == 'LTN'), aes(
          size = FALSE) +
   theme_bw() #+ facet_wrap(~faixa_duracao)
 
+# por duração
+ggplot(data_pre, aes(
+  y = VA_TAXA_ACEITA, 
+  x = duracao, 
+  size = VA_FINANCEIRO_ACEITO,
+  #color = Bond.Type
+  fill = ano_leilao
+)) + 
+  geom_point(alpha = .5, shape = 21, stroke = 0) +
+  #scale_color_brewer(palette = 'YlOrRd')
+  labs(y = "Taxa Aceita", x = "Duração", fill = "Ano do leilão") +
+  #scale_fill_viridis_d(option = "A", direction = -1) +
+  scale_fill_continuous_sequential("SunsetDark") +
+  guides(fill = guide_legend(override.aes = list(size=5)),
+         size = FALSE) +
+  theme_bw() + facet_wrap(~SG_TITULO, scales = "free")
+
 # sumarios ----------------------------------------------------------------
 
 # 'BTN-BIB' ?
@@ -78,6 +95,12 @@ data_pre %>% filter(VA_FINANCEIRO_ACEITO <= 0) %>% nrow()
 data_pre %>% filter(is.na(VA_VNA)) %>% nrow()
   
 ggplot(data_pre, aes(y = Bond.Type, x = Total.Amount.Accepted..R..)) + geom_col()
+
+#quantidade por data de vencimento
+ggplot(data_pre %>% filter(SG_TITULO == "NTN-B")) +
+  geom_histogram(aes(
+    x = DT_VENCIMENTO_TITULO
+  ))
 
 #valores totais por ano, por título
 ggplot(data_pre, 
