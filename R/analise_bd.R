@@ -17,8 +17,10 @@ data_pre <- data_raw %>%
   mutate_at(vars(starts_with('DT_')), ~lubridate::dmy(.)) %>%
   mutate(duracao = interval(DT_LEILAO, DT_VENCIMENTO_TITULO)/years(1),
          faixa_duracao = cut(duracao, 
-                             breaks = c(0, 1, 2, 5, 10, 20, 30, 50),
-                             labels = c('até 1 ano', '1 a 2', '2 a 5', '5 a 10', '10 a 20', '20 a 30', '30 e acima'))) %>%
+                             #breaks = c(0, 1, 2, 5, 10, 20, 30, 50),
+                             #labels = c('até 1 ano', '1 a 2', '2 a 5', '5 a 10', '10 a 20', '20 a 30', '30 e acima'))) %>%
+                             breaks = c(0, 1, 2, 5, 10, Inf),
+                             labels = c('até 1 ano', '1 a 2 anos', '2 a 5 anos', '5 a 10 anos', 'Acima de 10 anos'))) %>%
   filter(
     SG_TITULO != 'BTN-BIB',
     QT_ACEITA != 0) %>%
@@ -123,6 +125,15 @@ ggplot(data_pre) + geom_histogram(aes(x = duracao), bins = 100) +
 
 data_pre %>% filter(ano_leilao == 2020) %>% select(VA_FINANCEIRO_ACEITO) %>% unlist() %>% sum()
 
+ggplot(data_pre %>% filter(SG_TITULO == "LTN")) + 
+  geom_histogram(aes(x = duracao), bins = 100) #+ 
+  #facet_wrap(~SG_TITULO)
+
+ggplot(data_pre) + 
+  geom_histogram(aes(
+    x = duracao,
+    fill = SG_TITULO), bins = 100) + 
+  facet_wrap(~SG_TITULO)
 
 # Ideias ------------------------------------------------------------------
 
