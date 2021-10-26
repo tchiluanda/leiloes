@@ -190,3 +190,18 @@ ggplot(data_pre %>% filter(SG_TITULO == 'LTN'), aes(
   guides(fill = guide_legend(override.aes = list(size=5)),
          size = FALSE) +
   theme_bw() + facet_wrap(~ano_leilao)
+
+
+
+# export ------------------------------------------------------------------
+
+library(jsonlite)
+
+write_json(data_pre %>% select(
+  DT_LEILAO,
+  VA_TAXA_ACEITA, 
+  VA_FINANCEIRO_ACEITO, 
+  SG_TITULO, 
+  duracao, 
+  faixa_duracao, 
+  ano_leilao), 'data.json')
