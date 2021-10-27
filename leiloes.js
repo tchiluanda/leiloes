@@ -47,7 +47,9 @@ const s = {
 
         count : (array) => array.length,
 
-        format : (number) => number.toFixed(2).replace('.', ','),
+        format_decimal : (number) => number.toFixed(2).replace('.', ','),
+
+        format_thousands : (number) => number.toLocaleString(),
 
         populate_data_field : (ref) => {
 
@@ -58,7 +60,9 @@ const s = {
             let value = s.data.summary[ref];
 
             // special treatments
-            if (ref == 'va_financeiro_total') { value = `R$ ${s.utils.format(value/1e12)} trilhões`}
+            if (ref == 'va_financeiro_total') { value = `R$ ${s.utils.format_decimal(value/1e12)} trilhões`}
+
+            if (ref == 'qde_leiloes') { value = s.utils.format_thousands(value)}
 
             el.innerText = value;
 
