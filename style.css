@@ -6,9 +6,42 @@
 /* = = = = = GENERAL  LAYOUT = = = = = */
 /* * * * * * * * * * * * * * * * * * * */
 
-main {
+.limited-width {
 
     max-width: 620px;
     margin: 0 auto;
+
+}
+
+.expanded-width {
+
+    max-width: 800px;
+    margin: 0 auto;
+
+}
+
+/* * * * * * * * * * * * * * * * * * * */
+/* = = = = = = =  TEXT = = = = = = = = */
+/* * * * * * * * * * * * * * * * * * * */
+
+.highlight {
+
+    padding: .2em .4em;
+    border-radius: 5px;
+    border: 2px solid black;
+    background-color: khaki;
+
+}
+
+/* * * * * * * * * * * * * * * * * * * */
+/* = = = = = =  CANVAS = = = = = = = = */
+/* * * * * * * * * * * * * * * * * * * */
+
+canvas {
+
+    width: 100%;
+    height: 400px;
+
+    outline : 2px solid tan;
 
 }
