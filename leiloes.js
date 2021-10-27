@@ -173,6 +173,14 @@ const s = {
 
         },
 
+        prepare : () => {
+
+            const states = Object.keys(s.vis.states);
+
+            console.log(states);
+
+        },
+
         render : {
 
             axis : () => {
