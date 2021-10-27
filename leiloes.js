@@ -70,7 +70,41 @@ const s = {
 
     },
 
+    vis : {
+
+        canvas : document.querySelector('canvas'),
+
+        sizing : {
+
+            canvas_width : 2048,
+
+            w : null,
+            h : null,
+            ratio : null,
+
+            get_size : () => {
+
+                s.vis.sizing.w = +window.getComputedStyle(s.vis.canvas).width.slice(0,-2);
+                s.vis.sizing.h = +window.getComputedStyle(s.vis.canvas).height.slice(0,-2);
+                s.vis.sizing.ratio = s.vis.sizing.w / s.vis.sizing.h
+
+            },
+
+            set_resolution : () => {
+
+                s.vis.canvas.width = s.vis.sizing.canvas_width;
+                s.vis.canvas.height = Math.round(s.vis.sizing.canvas_width / s.vis.sizing.ratio);
+
+            }
+
+        }
+
+    },
+
     control : {
+
+
+        //control.init => calls s.data.read => calls s.control.after_init
 
         init : () => s.data.read(),
 
@@ -84,6 +118,10 @@ const s = {
             // popula textos
             const summary_keys = Object.keys(s.data.summary);
             summary_keys.forEach(key => s.utils.populate_data_field(key));
+
+            // get canvas size
+            s.vis.sizing.get_size();
+            s.vis.sizing.set_resolution();
 
 
         }
