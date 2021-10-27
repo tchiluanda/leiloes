@@ -188,10 +188,35 @@ const s = {
             
             })
 
-            s.vis.scales.x.range([margin, width - 2*margin]);
-            s.vis.scales.y.range([height - 2*margin, margin]);
+            s.vis.scales.x.range([margin, width - margin]);
+            s.vis.scales.y.range([height - margin, margin]);
+
+            // axis
+
+            const x0 = s.vis.scales.x.range()[0];
+            const x1 = s.vis.scales.x.range()[1];
+            const y0 = s.vis.scales.y.range()[0];
+            const y1 = s.vis.scales.y.range()[1];
+
+            ctx.strokeStyle = 'gray';
+            ctx.lineWidth = 2;
+
+            console.log(x0, y0, x1, y1);
+
+            ctx.beginPath();
+            ctx.moveTo(x0, y0);
+            ctx.lineTo(x0, y1);
+            ctx.closePath();
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.moveTo(x0, y0);
+            ctx.lineTo(x1, y0);
+            ctx.closePath();
+            ctx.stroke();
 
             // draw
+
             let i = 0;
 
             data.forEach(leilao => {
@@ -199,12 +224,12 @@ const s = {
                 const x = s.vis.scales.x(leilao[variavel_x]);
                 const y = s.vis.scales.y(leilao[variavel_y]);
 
-                if (i < 100) {
+                // if (i < 100) {
 
-                    console.log(leilao,x,y);
-                    i++;
+                //     console.log(leilao,x,y);
+                //     i++;
 
-                }
+                // }
                 
 
                 ctx.beginPath();
@@ -240,6 +265,9 @@ const s = {
             // get canvas size
             s.vis.sizing.get_size();
             s.vis.sizing.set_resolution();
+
+            // draw
+            s.vis.render('scatter taxa x data leilão')
 
 
         }
