@@ -29,6 +29,11 @@ const s = {
               })
               .then(contents => {
 
+                // faz um ajuste para criar um campo de data em formato de... data.
+                contents.forEach(row => {
+                    row.date = d3.timeParse("%Y-%m-%d")(row.DT_LEILAO);
+                })
+
                 s.control.after_init(contents);
 
               })
@@ -77,10 +82,13 @@ const s = {
         sizing : {
 
             canvas_width : 2048,
+            canvas_height : null,
 
             w : null,
             h : null,
             ratio : null,
+
+            margin : 100,
 
             get_size : () => {
 
@@ -93,9 +101,119 @@ const s = {
             set_resolution : () => {
 
                 s.vis.canvas.width = s.vis.sizing.canvas_width;
-                s.vis.canvas.height = Math.round(s.vis.sizing.canvas_width / s.vis.sizing.ratio);
+                
+                const height = Math.round(s.vis.sizing.canvas_width / s.vis.sizing.ratio);
+                s.vis.canvas.height = height;
+                s.vis.sizing.canvas_height = height;
 
             }
+
+        },
+
+        states : {
+
+            /* colunas
+            DT_LEILAO: "2008-01-09"
+            SG_TITULO: "LFT"
+            VA_FINANCEIRO_ACEITO: 1154169252.84
+            VA_TAXA_ACEITA: -0.0002
+            ano_leilao: 2008
+            duracao: 6.1562
+            faixa_duracao: "5 a 10 anos"
+            */
+
+            'scatter taxa x data leilão' : {
+
+                x : {
+                    
+                    variable : 'date',
+                    type : 'date'
+
+                },
+
+                y : {
+                    
+                    variable : 'VA_TAXA_ACEITA',
+                    type : 'numeric'
+
+                }
+
+            }
+
+
+        },
+
+        scales : {
+
+            x : null,
+            y : null
+
+        },
+
+        render : (state) => {
+
+            const data = s.data.raw.filter(d => d.SG_TITULO == 'LTN');
+
+            const ctx = s.vis.canvas.getContext('2d');
+
+            const variavel_x = s.vis.states[state].x.variable; 
+            const variavel_y = s.vis.states[state].y.variable;
+
+            console.log(variavel_x, variavel_y)
+
+            // scales
+
+            const height = s.vis.sizing.canvas_height;
+            const width = s.vis.sizing.canvas_width;
+            const margin = s.vis.sizing.margin;
+
+            const dims = Object.keys(s.vis.scales); // x and y
+
+            dims.forEach(dim => {
+
+                const variable = s.vis.states[state][dim].variable;
+
+                if (s.vis.states[state][dim].type == 'date') {
+
+                    s.vis.scales[dim] = d3.scaleTime();
+    
+                } else {
+
+                    s.vis.scales[dim] = d3.scaleLinear();
+
+                }
+
+                s.vis.scales[dim]
+                    .domain(d3.extent(data, d => d[variable]));
+            
+            })
+
+            s.vis.scales.x.range([margin, width - 2*margin]);
+            s.vis.scales.y.range([height - 2*margin, margin]);
+
+            // draw
+            let i = 0;
+
+            data.forEach(leilao => {
+
+                const x = s.vis.scales.x(leilao[variavel_x]);
+                const y = s.vis.scales.y(leilao[variavel_y]);
+
+                if (i < 100) {
+
+                    console.log(leilao,x,y);
+                    i++;
+
+                }
+                
+
+                ctx.beginPath();
+                ctx.arc(x, y, 2, 0, 360, false);
+                ctx.fillStyle ='tomato';
+                ctx.fill();
+                
+
+            })
 
         }
 
