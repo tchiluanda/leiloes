@@ -289,42 +289,31 @@ const s = {
 
             },
 
-            state : (state) => {
-
-                
+            points : (state) => {
     
                 const ctx = s.vis.canvas.getContext('2d');
-    
 
-    
-                
-    
-                // scales
+                s.data.points.forEach(point => {
 
+                    if (state) {
 
-                // draw
-    
-                let i = 0;
-    
-                data.forEach(leilao => {
-    
-                    const x = s.vis.scales.x(leilao[variavel_x]);
-                    const y = s.vis.scales.y(leilao[variavel_y]);
-    
-                    // if (i < 100) {
-    
-                    //     console.log(leilao,x,y);
-                    //     i++;
-    
-                    // }
-                    
-    
+                        point.x = point.next_x[state];
+                        point.y = point.next_y[state];
+
+                    } 
+
+                    const [x, y] = [
+
+                        point.x,
+                        point.y
+
+                    ];
+
                     ctx.beginPath();
                     ctx.arc(x, y, 2, 0, 360, false);
                     ctx.fillStyle ='tomato';
                     ctx.fill();
-                    
-    
+
                 })
     
             }
