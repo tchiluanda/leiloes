@@ -177,7 +177,18 @@ const s = {
 
             const states = Object.keys(s.vis.states);
 
+            const data = s.data.raw.filter(d => d.SG_TITULO == 'LTN'); // fazer o tipo de título ser um parâmetro da função prepare()
+
             console.log(states);
+
+            states.forEach(state => {
+
+                const variavel_x = s.vis.states[state].x.variable; 
+                const variavel_y = s.vis.states[state].y.variable;
+
+                console.log(variavel_x, variavel_y);
+
+            })
 
         },
 
@@ -217,14 +228,13 @@ const s = {
 
             state : (state) => {
 
-                const data = s.data.raw.filter(d => d.SG_TITULO == 'LTN');
+                
     
                 const ctx = s.vis.canvas.getContext('2d');
     
-                const variavel_x = s.vis.states[state].x.variable; 
-                const variavel_y = s.vis.states[state].y.variable;
+
     
-                console.log(variavel_x, variavel_y)
+                
     
                 // scales
     
