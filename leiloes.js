@@ -15,6 +15,8 @@ const s = {
 
         },
 
+        points : null,
+
         read : function() {
 
             fetch(this.origem)
@@ -31,7 +33,9 @@ const s = {
 
                 // faz um ajuste para criar um campo de data em formato de... data.
                 contents.forEach(row => {
-                    row.date = d3.timeParse("%Y-%m-%d")(row.DT_LEILAO);
+                    const date = d3.timeParse("%Y-%m-%d")(row.DT_LEILAO);
+                    row.date = date;
+                    row.date_month = new Date(date.getFullYear(), date.getMonth(), 1);
                 })
 
                 s.control.after_init(contents);
@@ -122,12 +126,12 @@ const s = {
             faixa_duracao: "5 a 10 anos"
             */
 
-            'scatter taxa x data leilão' : {
+            'scatter taxa x data leilao' : {
 
                 x : {
                     
                     variable : 'date',
-                    type : 'date'
+                    type : 'date',
 
                 },
 
@@ -137,6 +141,25 @@ const s = {
                     type : 'numeric'
 
                 }
+
+            },
+
+            'scatter taxa x mes leilao' : {
+
+                x : {
+                    
+                    variable : 'date_month',
+                    type : 'date',
+
+                },
+
+                y : {
+                    
+                    variable : 'VA_TAXA_ACEITA',
+                    type : 'numeric'
+
+                }
+
 
             }
 
@@ -150,97 +173,110 @@ const s = {
 
         },
 
-        render : (state) => {
+        render : {
 
-            const data = s.data.raw.filter(d => d.SG_TITULO == 'LTN');
+            axis : () => {
 
-            const ctx = s.vis.canvas.getContext('2d');
+                const ctx = s.vis.canvas.getContext('2d');
 
-            const variavel_x = s.vis.states[state].x.variable; 
-            const variavel_y = s.vis.states[state].y.variable;
+                const height = s.vis.sizing.canvas_height;
+                const width = s.vis.sizing.canvas_width;
+                const margin = s.vis.sizing.margin;
 
-            console.log(variavel_x, variavel_y)
-
-            // scales
-
-            const height = s.vis.sizing.canvas_height;
-            const width = s.vis.sizing.canvas_width;
-            const margin = s.vis.sizing.margin;
-
-            const dims = Object.keys(s.vis.scales); // x and y
-
-            dims.forEach(dim => {
-
-                const variable = s.vis.states[state][dim].variable;
-
-                if (s.vis.states[state][dim].type == 'date') {
-
-                    s.vis.scales[dim] = d3.scaleTime();
+                const x0 = margin;
+                const x1 = width-margin;
+                const y0 = height-margin
+                const y1 = margin;
     
-                } else {
-
-                    s.vis.scales[dim] = d3.scaleLinear();
-
-                }
-
-                s.vis.scales[dim]
-                    .domain(d3.extent(data, d => d[variable]));
-            
-            })
-
-            s.vis.scales.x.range([margin, width - margin]);
-            s.vis.scales.y.range([height - margin, margin]);
-
-            // axis
-
-            const x0 = s.vis.scales.x.range()[0];
-            const x1 = s.vis.scales.x.range()[1];
-            const y0 = s.vis.scales.y.range()[0];
-            const y1 = s.vis.scales.y.range()[1];
-
-            ctx.strokeStyle = 'gray';
-            ctx.lineWidth = 2;
-
-            console.log(x0, y0, x1, y1);
-
-            ctx.beginPath();
-            ctx.moveTo(x0, y0);
-            ctx.lineTo(x0, y1);
-            ctx.closePath();
-            ctx.stroke();
-
-            ctx.beginPath();
-            ctx.moveTo(x0, y0);
-            ctx.lineTo(x1, y0);
-            ctx.closePath();
-            ctx.stroke();
-
-            // draw
-
-            let i = 0;
-
-            data.forEach(leilao => {
-
-                const x = s.vis.scales.x(leilao[variavel_x]);
-                const y = s.vis.scales.y(leilao[variavel_y]);
-
-                // if (i < 100) {
-
-                //     console.log(leilao,x,y);
-                //     i++;
-
-                // }
-                
-
+                ctx.strokeStyle = 'gray';
+                ctx.lineWidth = 2;
+    
+                console.log(x0, y0, x1, y1);
+    
                 ctx.beginPath();
-                ctx.arc(x, y, 2, 0, 360, false);
-                ctx.fillStyle ='tomato';
-                ctx.fill();
-                
+                ctx.moveTo(x0, y0);
+                ctx.lineTo(x0, y1);
+                ctx.closePath();
+                ctx.stroke();
+    
+                ctx.beginPath();
+                ctx.moveTo(x0, y0);
+                ctx.lineTo(x1, y0);
+                ctx.closePath();
+                ctx.stroke();
 
-            })
+            },
+
+            state : (state) => {
+
+                const data = s.data.raw.filter(d => d.SG_TITULO == 'LTN');
+    
+                const ctx = s.vis.canvas.getContext('2d');
+    
+                const variavel_x = s.vis.states[state].x.variable; 
+                const variavel_y = s.vis.states[state].y.variable;
+    
+                console.log(variavel_x, variavel_y)
+    
+                // scales
+    
+                const height = s.vis.sizing.canvas_height;
+                const width = s.vis.sizing.canvas_width;
+                const margin = s.vis.sizing.margin;
+    
+                const dims = Object.keys(s.vis.scales); // x and y
+    
+                dims.forEach(dim => {
+    
+                    const variable = s.vis.states[state][dim].variable;
+    
+                    if (s.vis.states[state][dim].type == 'date') {
+    
+                        s.vis.scales[dim] = d3.scaleTime();
+        
+                    } else {
+    
+                        s.vis.scales[dim] = d3.scaleLinear();
+    
+                    }
+    
+                    s.vis.scales[dim]
+                        .domain(d3.extent(data, d => d[variable]));
+                
+                })
+    
+                s.vis.scales.x.range([margin, width - margin]);
+                s.vis.scales.y.range([height - margin, margin]);
+    
+                // draw
+    
+                let i = 0;
+    
+                data.forEach(leilao => {
+    
+                    const x = s.vis.scales.x(leilao[variavel_x]);
+                    const y = s.vis.scales.y(leilao[variavel_y]);
+    
+                    // if (i < 100) {
+    
+                    //     console.log(leilao,x,y);
+                    //     i++;
+    
+                    // }
+                    
+    
+                    ctx.beginPath();
+                    ctx.arc(x, y, 2, 0, 360, false);
+                    ctx.fillStyle ='tomato';
+                    ctx.fill();
+                    
+    
+                })
+    
+            }
 
         }
+
 
     },
 
@@ -267,7 +303,7 @@ const s = {
             s.vis.sizing.set_resolution();
 
             // draw
-            s.vis.render('scatter taxa x data leilão')
+            //s.vis.render('scatter taxa x data leilão')
 
 
         }
