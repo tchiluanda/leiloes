@@ -150,6 +150,7 @@ const s = {
                     
                     variable : 'date_month',
                     type : 'date',
+                    domain_variable : 'date'
 
                 },
 
@@ -175,18 +176,56 @@ const s = {
 
         prepare : () => {
 
-            const states = Object.keys(s.vis.states);
-
+            // os dados
             const data = s.data.raw.filter(d => d.SG_TITULO == 'LTN'); // fazer o tipo de título ser um parâmetro da função prepare()
+
+            // dimensoes "fisicas"
+            const height = s.vis.sizing.canvas_height;
+            const width = s.vis.sizing.canvas_width;
+            const margin = s.vis.sizing.margin;
+
+            // estados
+            const states = Object.keys(s.vis.states);
 
             console.log(states);
 
+            // itera sobre os estados
             states.forEach(state => {
 
-                const variavel_x = s.vis.states[state].x.variable; 
-                const variavel_y = s.vis.states[state].y.variable;
+                // pega as variaveis do estado que vão ser usadas nos canais visuais
 
-                console.log(variavel_x, variavel_y);
+                // testa se foi explicitada uma domain_variable para definir a escala
+                const variavel_x = s.vis.states[state].x.domain_variable ? 
+                  s.vis.states[state].x.domain_variable : 
+                  s.vis.states[state].x.variable;
+
+                const variavel_y = s.vis.states[state].y.domain_variable ? 
+                  s.vis.states[state].y.domain_variable : 
+                  s.vis.states[state].y.variable;
+
+                console.log(state, variavel_x, variavel_y);
+
+                const dims = ['x', 'y'];
+
+                // itera sobre os canais / dimensões
+                dims.forEach(dim => {
+    
+                    const variable = s.vis.states[state][dim].variable;
+    
+                    if (s.vis.states[state][dim].type == 'date') {
+
+                        s.vis.scales[dim] = d3.scaleTime();
+
+                    } else {
+    
+                        s.vis.scales[dim] = d3.scaleLinear();
+    
+                    }
+    
+                    s.vis.scales[dim]
+                        .domain(d3.extent(data, d => d[variable]));
+                
+                })
 
             })
 
@@ -237,31 +276,11 @@ const s = {
                 
     
                 // scales
-    
-                const height = s.vis.sizing.canvas_height;
-                const width = s.vis.sizing.canvas_width;
-                const margin = s.vis.sizing.margin;
+
     
                 const dims = Object.keys(s.vis.scales); // x and y
     
-                dims.forEach(dim => {
-    
-                    const variable = s.vis.states[state][dim].variable;
-    
-                    if (s.vis.states[state][dim].type == 'date') {
-    
-                        s.vis.scales[dim] = d3.scaleTime();
-        
-                    } else {
-    
-                        s.vis.scales[dim] = d3.scaleLinear();
-    
-                    }
-    
-                    s.vis.scales[dim]
-                        .domain(d3.extent(data, d => d[variable]));
-                
-                })
+
     
                 s.vis.scales.x.range([margin, width - margin]);
                 s.vis.scales.y.range([height - margin, margin]);
