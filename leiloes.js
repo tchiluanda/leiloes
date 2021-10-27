@@ -15,7 +15,7 @@ const s = {
 
         },
 
-        points : null,
+        points : [],
 
         read : function() {
 
@@ -179,6 +179,17 @@ const s = {
             // os dados
             const data = s.data.raw.filter(d => d.SG_TITULO == 'LTN'); // fazer o tipo de título ser um parâmetro da função prepare()
 
+            // inicializa points
+            s.data.points = data.map((d,i) => (
+                { 
+                    id : i,
+                    x : {},
+                    y : {}
+                })
+            );
+
+            const points = s.data.points;
+
             // dimensoes "fisicas"
             const height = s.vis.sizing.canvas_height;
             const width = s.vis.sizing.canvas_width;
@@ -225,6 +236,17 @@ const s = {
                     s.vis.scales[dim]
                         .domain(d3.extent(data, d => d[variable]));
                 
+                })
+
+                s.vis.scales.x.range([margin, width - margin]);
+                s.vis.scales.y.range([height - margin, margin]);
+
+                // vai construindo o array points
+                data.forEach( (d,i) => {
+
+                    points[i].x[state] = s.vis.scales.x(d[variavel_x]);
+                    points[i].y[state] = s.vis.scales.y(d[variavel_y]);
+
                 })
 
             })
@@ -277,14 +299,7 @@ const s = {
     
                 // scales
 
-    
-                const dims = Object.keys(s.vis.scales); // x and y
-    
 
-    
-                s.vis.scales.x.range([margin, width - margin]);
-                s.vis.scales.y.range([height - margin, margin]);
-    
                 // draw
     
                 let i = 0;
