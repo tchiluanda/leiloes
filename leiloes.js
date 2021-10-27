@@ -6,6 +6,15 @@ const s = {
 
         raw : null,
 
+        summary : {
+
+            // chaves aqui iguais às strings dos atributos `data-vartext-` do html.
+
+            va_financeiro_total : null,
+            qde_leiloes : null
+
+        },
+
         read : function() {
 
             fetch(this.origem)
@@ -23,6 +32,14 @@ const s = {
               })
 
         }
+
+    },
+
+    utils : {
+
+        sum : (array) => array.reduce(
+            (va_acumulado, va_atual) => va_acumulado + va_atual
+        )
 
     },
 
