@@ -183,8 +183,10 @@ const s = {
             s.data.points = data.map((d,i) => (
                 { 
                     id : i,
-                    x : {},
-                    y : {}
+                    x : null,
+                    y : null,
+                    next_x : {},
+                    next_y : {}
                 })
             );
 
@@ -244,8 +246,8 @@ const s = {
                 // vai construindo o array points
                 data.forEach( (d,i) => {
 
-                    points[i].x[state] = s.vis.scales.x(d[variavel_x]);
-                    points[i].y[state] = s.vis.scales.y(d[variavel_y]);
+                    points[i].next_x[state] = s.vis.scales.x(d[variavel_x]);
+                    points[i].next_y[state] = s.vis.scales.y(d[variavel_y]);
 
                 })
 
@@ -354,6 +356,8 @@ const s = {
             s.vis.sizing.get_size();
             s.vis.sizing.set_resolution();
 
+            // prepare
+            s.vis.prepare();
             // draw
             //s.vis.render('scatter taxa x data leilão')
 
