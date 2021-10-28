@@ -34,6 +34,21 @@
 }
 
 /* * * * * * * * * * * * * * * * * * * */
+/* = = = = = = SELETOR = = = = = = = = */
+/* * * * * * * * * * * * * * * * * * * */
+
+select#estado { 
+    
+    padding: .5em 1em;
+    margin-bottom: 1rem;
+    font-family: 'Times News Roman';
+    font-size: 1rem;
+    border: 3px solid hotpink;
+    border-radius: 5px;
+
+}
+
+/* * * * * * * * * * * * * * * * * * * */
 /* = = = = = =  CANVAS = = = = = = = = */
 /* * * * * * * * * * * * * * * * * * * */
 

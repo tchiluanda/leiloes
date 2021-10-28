@@ -413,6 +413,33 @@ const s = {
 
     },
 
+    interaction : {
+
+        seletor_grafico : {
+
+            popula : () => {
+
+                const sel = document.querySelector('select#estado');
+
+                const estados = Object.keys(s.vis.states);
+
+                estados.forEach(estado => {
+
+                    const new_option = document.createElement("option");
+                        
+                    new_option.label = estado.slice(8,);
+                    new_option.value = estado;
+
+                    sel.appendChild(new_option);
+
+                })
+
+            }
+
+        }
+
+    },
+
     control : {
 
 
@@ -430,6 +457,9 @@ const s = {
             // popula textos
             const summary_keys = Object.keys(s.data.summary);
             summary_keys.forEach(key => s.utils.populate_data_field(key));
+
+            // popula seletor
+            s.interaction.seletor_grafico.popula();
 
             // get canvas size
             s.vis.sizing.get_size();
