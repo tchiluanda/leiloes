@@ -11,7 +11,8 @@ const s = {
             // chaves aqui iguais às strings dos atributos `data-vartext-` do html.
 
             va_financeiro_total : null,
-            qde_leiloes : null
+            qde_leiloes : null,
+            qde_anos : null
 
         },
 
@@ -491,6 +492,7 @@ const s = {
 
             s.data.summary.qde_leiloes = s.utils.count(data);
             s.data.summary.va_financeiro_total = s.utils.sum_column(data, 'VA_FINANCEIRO_ACEITO');
+            s.data.summary.qde_anos = s.utils.unique(s.data.raw.map(d => d.year)).length;
 
             // popula textos
             const summary_keys = Object.keys(s.data.summary);
