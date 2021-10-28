@@ -294,9 +294,17 @@ const s = {
 
             },
 
-            points : (state) => {
+            points : (state, clear = true) => {
+
+                const height = s.vis.sizing.canvas_height;
+                const width = s.vis.sizing.canvas_width;
     
                 const ctx = s.vis.canvas.getContext('2d');
+
+                if (clear) {
+                    ctx.fillStyle = 'white';
+                    ctx.fillRect(0, 0, width, height);
+                }
 
                 s.data.points.forEach(point => {
 
