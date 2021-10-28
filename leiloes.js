@@ -76,6 +76,16 @@ const s = {
 
             el.innerText = value;
 
+        },
+
+        retrieve_destination_data : {
+            
+            general : (i, target, dim, state) => target[dim][state],
+
+            x : (i, target, state) => s.utils.retrieve_destination_data.general(i, target, 'next_x', state),
+
+            y : (i, target, state) => s.utils.retrieve_destination_data.general(i, target, 'next_y', state)
+
         }
 
     },
@@ -296,6 +306,8 @@ const s = {
 
             points : (state, clear = true) => {
 
+                console.log(state);
+
                 const height = s.vis.sizing.canvas_height;
                 const width = s.vis.sizing.canvas_width;
     
@@ -331,8 +343,21 @@ const s = {
     
             }
 
-        }
+        },
 
+        animate : () => {
+
+            gsap.to(s.data.points, {
+                duration: 2,
+                delay: 0,
+                ease: 'none',
+                x : (i, target) => s.utils.retrieve_destination_data.x(i, target, 'scatter taxa x ano leilao'),
+                y : (i, target) => s.utils.retrieve_destination_data.y(i, target, 'scatter taxa x ano leilao'),
+                onUpdate : s.vis.render.points
+                } 
+            )
+            
+        }
 
     },
 
