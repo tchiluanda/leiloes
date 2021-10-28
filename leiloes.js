@@ -161,7 +161,7 @@ const s = {
             'scatter taxa x ano leilao' : {
 
                 x : {
-                    
+
                     variable : 'date_year',
                     type : 'date',
                     domain_variable : 'date'
@@ -175,7 +175,24 @@ const s = {
 
                 }
 
+            },
 
+            'scatter taxa x duracao' : {
+
+                x : {
+
+                    variable : 'duracao',
+                    type : 'numeric',
+
+                },
+
+                y : {
+                    
+                    variable : 'VA_TAXA_ACEITA',
+                    type : 'numeric'
+
+                }
+                
             }
 
 
@@ -376,14 +393,18 @@ const s = {
 
         },
 
-        animate : () => {
+        animate : (state) => {
+
+            // os states são
+            //scatter taxa x ano leilao
+            //scatter taxa x data leilao
 
             gsap.to(s.data.points, {
                 duration: 2,
                 delay: 0,
                 ease: "power2.inOut",
-                x : (i, target) => s.utils.retrieve_destination_data.x(i, target, 'scatter taxa x ano leilao'),
-                y : (i, target) => s.utils.retrieve_destination_data.y(i, target, 'scatter taxa x ano leilao'),
+                x : (i, target) => s.utils.retrieve_destination_data.x(i, target, state),
+                y : (i, target) => s.utils.retrieve_destination_data.y(i, target, state),
                 onUpdate : s.vis.render.points
                 } 
             )
