@@ -183,12 +183,16 @@ const s = {
 
         scales : {
 
+            // esses x e y vao depender dos estados, vao ser setados no s.vis.prepare
             x : null,
             y : null,
+
             color : null,
             r : null,
 
-            set_color_r : () => {
+            set_color_and_radius : () => {
+
+                // color
 
                 const faixas = ['até 1 ano', '1 a 2 anos', '2 a 5 anos','5 a 10 anos', 'Acima de 10 anos'];
 
@@ -197,6 +201,12 @@ const s = {
                 ];
 
                 s.vis.scales.color = d3.scaleOrdinal().domain(faixas).range(colors);
+
+                // radius
+
+                s.vis.scales.r = d3.scaleSqrt()
+                  .range([2, 30])  // 45
+                  .domain([0, d3.max(s.data.raw, d => d.VA_FINANCEIRO_ACEITO)]);
 
             }
 
@@ -215,7 +225,7 @@ const s = {
                     x : null,
                     y : null,
                     color : s.vis.scales.color(d.faixa_duracao),
-                    r : null,
+                    r : s.vis.scales.r(d.VA_FINANCEIRO_ACEITO),
                     next_x : {},
                     next_y : {}
                 })
@@ -354,8 +364,9 @@ const s = {
 
                     ];
 
+                    ctx.globalAlpha = .5;
                     ctx.beginPath();
-                    ctx.arc(x, y, 2, 0, 360, false);
+                    ctx.arc(x, y, point.r, 0, 360, false);
                     ctx.fillStyle = point.color;
                     ctx.fill();
 
@@ -404,7 +415,7 @@ const s = {
             s.vis.sizing.set_resolution();
 
             // prepare
-            s.vis.scales.set_color_r();
+            s.vis.scales.set_color_and_radius();
             s.vis.prepare();
             // draw
             //s.vis.render('scatter taxa x data leilão')
