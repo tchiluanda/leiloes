@@ -415,11 +415,13 @@ const s = {
 
     interaction : {
 
+        el : document.querySelector('select#estado'),
+
         seletor_grafico : {
 
             popula : () => {
 
-                const sel = document.querySelector('select#estado');
+                const sel = s.interaction.el;
 
                 const estados = Object.keys(s.vis.states);
 
@@ -434,14 +436,47 @@ const s = {
 
                 })
 
+            },
+
+            onUpdate : (e) => {
+
+                const novo_estado = e.target.value;
+                const estado_atual = s.control.current_state;
+
+                console.log(estado_atual, ' agora vai para o ', novo_estado);
+
+                if (!estado_atual) {
+
+                    s.vis.render.points(novo_estado);
+
+                } else {
+
+                    s.vis.animate(novo_estado);
+
+                }
+
+                s.control.current_state = novo_estado;
+
+    
+            },
+    
+            monitora : () => {
+    
+                const sel = s.interaction.el;
+    
+                sel.addEventListener('change', s.interaction.seletor_grafico.onUpdate);
+    
             }
 
-        }
+        },
+
+
 
     },
 
     control : {
 
+        current_state : null,
 
         //control.init => calls s.data.read => calls s.control.after_init
 
@@ -461,6 +496,9 @@ const s = {
             // popula seletor
             s.interaction.seletor_grafico.popula();
 
+            // monitora seletor
+            s.interaction.seletor_grafico.monitora();
+
             // get canvas size
             s.vis.sizing.get_size();
             s.vis.sizing.set_resolution();
@@ -468,8 +506,9 @@ const s = {
             // prepare
             s.vis.scales.set_color_and_radius();
             s.vis.prepare();
-            // draw
-            //s.vis.render('scatter taxa x data leilão')
+
+            // draw axis
+            s.vis.render.axis();
 
 
         }
