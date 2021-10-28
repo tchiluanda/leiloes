@@ -48,6 +48,11 @@ select#estado {
 
 }
 
+select#estado:focus-visible {
+
+    outline: 2px solid hotpink;
+}
+
 /* * * * * * * * * * * * * * * * * * * */
 /* = = = = = =  CANVAS = = = = = = = = */
 /* * * * * * * * * * * * * * * * * * * */
