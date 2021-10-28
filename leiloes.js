@@ -36,6 +36,7 @@ const s = {
                     const date = d3.timeParse("%Y-%m-%d")(row.DT_LEILAO);
                     row.date = date;
                     row.date_month = new Date(date.getFullYear(), date.getMonth(), 1);
+                    row.date_year = new Date(date.getFullYear(), 0, 1);
                 })
 
                 s.control.after_init(contents);
@@ -144,11 +145,11 @@ const s = {
 
             },
 
-            'scatter taxa x mes leilao' : {
+            'scatter taxa x ano leilao' : {
 
                 x : {
                     
-                    variable : 'date_month',
+                    variable : 'date_year',
                     type : 'date',
                     domain_variable : 'date'
 
@@ -208,11 +209,11 @@ const s = {
                 // pega as variaveis do estado que vão ser usadas nos canais visuais
 
                 // testa se foi explicitada uma domain_variable para definir a escala
-                const variavel_x = s.vis.states[state].x.domain_variable ? 
+                let variavel_x = s.vis.states[state].x.domain_variable ? 
                   s.vis.states[state].x.domain_variable : 
                   s.vis.states[state].x.variable;
 
-                const variavel_y = s.vis.states[state].y.domain_variable ? 
+                let variavel_y = s.vis.states[state].y.domain_variable ? 
                   s.vis.states[state].y.domain_variable : 
                   s.vis.states[state].y.variable;
 
@@ -242,6 +243,10 @@ const s = {
 
                 s.vis.scales.x.range([margin, width - margin]);
                 s.vis.scales.y.range([height - margin, margin]);
+
+                // reaponta variavel_x e variavel_y para a variavel que de fato tem que ser mapeada
+                variavel_x = s.vis.states[state].x.variable
+                variavel_y = s.vis.states[state].y.variable
 
                 // vai construindo o array points
                 data.forEach( (d,i) => {
