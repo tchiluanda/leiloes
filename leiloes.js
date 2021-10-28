@@ -322,6 +322,7 @@ const s = {
             axis : () => {
 
                 const ctx = s.vis.canvas.getContext('2d');
+                ctx.globalAlpha = 1;
 
                 const height = s.vis.sizing.canvas_height;
                 const width = s.vis.sizing.canvas_width;
@@ -335,7 +336,7 @@ const s = {
                 ctx.strokeStyle = 'gray';
                 ctx.lineWidth = 2;
     
-                console.log(x0, y0, x1, y1);
+                //console.log(x0, y0, x1, y1);
     
                 ctx.beginPath();
                 ctx.moveTo(x0, y0);
@@ -353,7 +354,7 @@ const s = {
 
             points : (state, clear = true) => {
 
-                console.log(state);
+                //console.log(state);
 
                 const height = s.vis.sizing.canvas_height;
                 const width = s.vis.sizing.canvas_width;
@@ -364,6 +365,8 @@ const s = {
                     ctx.fillStyle = 'white';
                     ctx.fillRect(0, 0, width, height);
                 }
+
+                s.vis.render.axis();
 
                 s.data.points.forEach(point => {
 
