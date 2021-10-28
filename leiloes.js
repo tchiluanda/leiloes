@@ -381,7 +381,7 @@ const s = {
             gsap.to(s.data.points, {
                 duration: 2,
                 delay: 0,
-                ease: 'none',
+                ease: "power2.inOut",
                 x : (i, target) => s.utils.retrieve_destination_data.x(i, target, 'scatter taxa x ano leilao'),
                 y : (i, target) => s.utils.retrieve_destination_data.y(i, target, 'scatter taxa x ano leilao'),
                 onUpdate : s.vis.render.points
