@@ -37,6 +37,7 @@ const s = {
                     row.date = date;
                     row.date_month = new Date(date.getFullYear(), date.getMonth(), 1);
                     row.date_year = new Date(date.getFullYear(), 0, 1);
+                    row.year = date.getFullYear();
                 })
 
                 s.control.after_init(contents);
@@ -54,6 +55,8 @@ const s = {
         ),
 
         sum_column : (array, column) => s.utils.sum( array.map(d => d[column]) ),
+
+        unique : (array) => array.filter((v, i, a) => a.indexOf(v) === i),
 
         count : (array) => array.length,
 
@@ -181,9 +184,24 @@ const s = {
         scales : {
 
             x : null,
-            y : null
+            y : null,
+            color : null,
+            r : null,
+
+            set_color_r : () => {
+
+                const faixas = ['até 1 ano', '1 a 2 anos', '2 a 5 anos','5 a 10 anos', 'Acima de 10 anos'];
+
+                const colors = [
+                    "#7D1D67", "#C22B79", "#F65A6D", "#FFA076", "#FFD99F"
+                ];
+
+                s.vis.scales.color = d3.scaleOrdinal().domain(faixas).range(colors);
+
+            }
 
         },
+
 
         prepare : () => {
 
@@ -196,6 +214,8 @@ const s = {
                     id : i,
                     x : null,
                     y : null,
+                    color : s.vis.scales.color(d.faixa_duracao),
+                    r : null,
                     next_x : {},
                     next_y : {}
                 })
@@ -336,7 +356,7 @@ const s = {
 
                     ctx.beginPath();
                     ctx.arc(x, y, 2, 0, 360, false);
-                    ctx.fillStyle ='tomato';
+                    ctx.fillStyle = point.color;
                     ctx.fill();
 
                 })
@@ -384,6 +404,7 @@ const s = {
             s.vis.sizing.set_resolution();
 
             // prepare
+            s.vis.scales.set_color_r();
             s.vis.prepare();
             // draw
             //s.vis.render('scatter taxa x data leilão')
