@@ -424,7 +424,15 @@ const s = {
 
             gsap.to(s.data.points, {
                 duration: 2,
-                delay: 0,
+                //delay: 0,
+                //delay: (i, target) => .1 * (i % 5),
+                delay: (i, target) => Math.random() * 0.6,
+                // stagger: { // wrap advanced options in an object
+                //     each: 0.0005,
+                //     from: "random",
+                //     ease: "power2.inOut",
+                //     repeat: 0 // Repeats immediately, not waiting for the other staggered animations to finish
+                // },
                 ease: "power2.inOut",
                 x : (i, target) => s.utils.retrieve_destination_data.x(i, target, state),
                 y : (i, target) => s.utils.retrieve_destination_data.y(i, target, state),
