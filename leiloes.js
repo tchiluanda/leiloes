@@ -140,6 +140,23 @@ const s = {
             duracao: 6.1562
             faixa_duracao: "5 a 10 anos"
             */
+            'inicial' : {
+
+                x : {
+                    
+                    variable : 'date',
+                    type : 'date',
+
+                },
+
+                y : {
+                    
+                    variable : 'VA_TAXA_ACEITA',
+                    type : 'numeric'
+
+                }
+
+            },
 
             'scatter taxa x data leilao' : {
 
@@ -310,7 +327,9 @@ const s = {
                 data.forEach( (d,i) => {
 
                     points[i].next_x[state] = s.vis.scales.x(d[variavel_x]);
-                    points[i].next_y[state] = s.vis.scales.y(d[variavel_y]);
+                    points[i].next_y[state] = state == 'inicial' ? -100 : s.vis.scales.y(d[variavel_y]);
+                    // se o estado for o inicial, seta o y para fora da área visível do canvas, para fazer uma animação inicial
+
 
                 })
 
@@ -480,7 +499,7 @@ const s = {
 
     control : {
 
-        current_state : null,
+        current_state : 'inicial',
 
         //control.init => calls s.data.read => calls s.control.after_init
 
@@ -514,6 +533,7 @@ const s = {
 
             // draw axis
             s.vis.render.axis();
+            s.vis.render.points('inicial');
 
 
         }
