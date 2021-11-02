@@ -144,6 +144,8 @@ const s = {
             */
             'inicial' : {
 
+                type : 'bubbles',
+
                 x : {
                     
                     variable : 'date',
@@ -162,6 +164,8 @@ const s = {
 
             'scatter taxa x data leilao' : {
 
+                type : 'bubbles',
+
                 x : {
                     
                     variable : 'date',
@@ -179,6 +183,8 @@ const s = {
             },
 
             'scatter taxa x ano leilao' : {
+
+                type : 'bubbles',
 
                 x : {
 
@@ -199,6 +205,8 @@ const s = {
 
             'scatter taxa x duracao' : {
 
+                type : 'bubbles',
+
                 x : {
 
                     variable : 'duracao',
@@ -217,7 +225,7 @@ const s = {
 
             'bar valor x ano leilao' : {
 
-                type : 'barchart',
+                type : 'rects',
 
                 x : {
 
@@ -279,7 +287,7 @@ const s = {
                 s.data.filtered = data;
 
                 s.vis.scales.h = d3.scaleLinear()
-                  .range([height - margin, margin])
+                  .range([0, height-margin])
                   .domain([0, d3.max(data, d => d.acum)]);
 
             }
@@ -300,7 +308,7 @@ const s = {
                     y : null,
                     color : s.vis.scales.color(d.faixa_duracao),
                     r : s.vis.scales.r(d.VA_FINANCEIRO_ACEITO),
-                    h : s.vis.scales.h(d.acum),
+                    h : s.vis.scales.h(d.VA_FINANCEIRO_ACEITO),
                     next_x : {},
                     next_y : {}
                 })
@@ -421,7 +429,7 @@ const s = {
 
             points : (state, clear = true) => {
 
-                //console.log(state);
+                //, s.vis.states[state].type);
 
                 const height = s.vis.sizing.canvas_height;
                 const width = s.vis.sizing.canvas_width;
@@ -451,9 +459,18 @@ const s = {
 
                     ];
 
-                    ctx.globalAlpha = .5;
-                    ctx.beginPath();
-                    ctx.arc(x, y, point.r, 0, 360, false);
+                    if (s.vis.states[s.control.current_state].type == "rects") {
+
+                        ctx.fillRect(x-50/2, y, 50, point.h);
+
+                    } else {
+
+                        ctx.globalAlpha = .5;
+                        ctx.beginPath();
+                        ctx.arc(x, y, point.r, 0, 360, false);
+
+                    }
+
                     ctx.fillStyle = point.color;
                     ctx.fill();
 
