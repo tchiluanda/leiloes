@@ -90,7 +90,9 @@ const s = {
 
             x : (i, target, state) => s.utils.retrieve_destination_data.general(i, target, 'next_x', state),
 
-            y : (i, target, state) => s.utils.retrieve_destination_data.general(i, target, 'next_y', state)
+            y : (i, target, state) => s.utils.retrieve_destination_data.general(i, target, 'next_y', state),
+
+            h : (i, target, state) => s.utils.retrieve_destination_data.general(i, target, 'next_h', state)
 
         }
 
@@ -308,9 +310,10 @@ const s = {
                     y : null,
                     color : s.vis.scales.color(d.faixa_duracao),
                     r : s.vis.scales.r(d.VA_FINANCEIRO_ACEITO),
-                    h : s.vis.scales.h(d.VA_FINANCEIRO_ACEITO),
+                    h : 2 * s.vis.scales.r(d.VA_FINANCEIRO_ACEITO),
                     next_x : {},
-                    next_y : {}
+                    next_y : {},
+                    next_h : {}
                 })
             );
 
@@ -385,6 +388,11 @@ const s = {
                     points[i].next_y[state] = state == 'inicial' ? -100 : s.vis.scales.y(d[variavel_y]);
                     // se o estado for o inicial, seta o y para fora da área visível do canvas, para fazer uma animação inicial
 
+                    if (s.vis.states[state].type == "rects") {
+                        points[i].next_h[state] = s.vis.scales.h(d.VA_FINANCEIRO_ACEITO);
+                    } else {
+                        points[i].next_h[state] = points[i].h;
+                    }
 
                 })
 
