@@ -211,6 +211,28 @@ const s = {
 
                 }
                 
+            },
+
+            'bar valor x ano leilao' : {
+
+                type : 'barchart',
+
+                x : {
+
+                    variable : 'date_year',
+                    type : 'date',
+                    domain_variable : 'date'
+
+                },
+
+                y : {
+                    
+                    variable : 'acum',
+                    type : 'numeric',
+                    zero_based : true
+
+                }
+                
             }
 
 
@@ -310,9 +332,16 @@ const s = {
                         s.vis.scales[dim] = d3.scaleLinear();
     
                     }
+
+                    if (s.vis.states[state][dim].zero_based) {
+
+                        s.vis.scales[dim]
+                          .domain([0, d3.max(data, d => d[variable])]);
+
+                    }
     
                     s.vis.scales[dim]
-                        .domain(d3.extent(data, d => d[variable]));
+                      .domain(d3.extent(data, d => d[variable]));
                 
                 })
 
