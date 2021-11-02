@@ -24,7 +24,12 @@ data_pre <- data_raw %>%
   filter(
     SG_TITULO != 'BTN-BIB',
     QT_ACEITA != 0) %>%
-  mutate(ano_leilao = year(DT_LEILAO))
+  mutate(ano_leilao = year(DT_LEILAO),
+         mes_ano = paste0(year(DT_LEILAO), str_pad(month(DT_LEILAO), width = 2, pad = '0'))) %>%
+  arrange(SG_TITULO, ano_leilao) %>%
+  group_by(SG_TITULO, ano_leilao) %>%
+  mutate(acum = cumsum(VA_FINANCEIRO_ACEITO)) %>%
+  ungroup()
 
 # data leilão x data vencimento
 ggplot(data_pre, aes(
@@ -201,7 +206,8 @@ write_json(data_pre %>% select(
   DT_LEILAO,
   VA_TAXA_ACEITA, 
   VA_FINANCEIRO_ACEITO, 
+  acum,
   SG_TITULO, 
   duracao, 
   faixa_duracao, 
-  ano_leilao), 'data.json')
+  ano_leilao), '../data.json')
