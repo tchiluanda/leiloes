@@ -6,6 +6,8 @@ const s = {
 
         raw : null,
 
+        filtered : null,
+
         summary : {
 
             // chaves aqui iguais às strings dos atributos `data-vartext-` do html.
@@ -246,6 +248,7 @@ const s = {
 
             color : null,
             r : null,
+            h : null, // altura do rect quando for um barchart
 
             set_color_and_radius : () => {
 
@@ -265,6 +268,20 @@ const s = {
                   .range([2, 30])  // 45
                   .domain([0, d3.max(s.data.raw, d => d.VA_FINANCEIRO_ACEITO)]);
 
+                // height
+
+                //// criar objetos específicos para evitar essa repetição
+                const height = s.vis.sizing.canvas_height;
+                const width = s.vis.sizing.canvas_width;
+                const margin = s.vis.sizing.margin;
+
+                const data = s.data.raw.filter(d => d.SG_TITULO == 'LTN'); // fazer o tipo de título ser um parâmetro da função prepare()
+                s.data.filtered = data;
+
+                s.vis.scales.h = d3.scaleLinear()
+                  .range([height - margin, margin])
+                  .domain([0, d3.max(data, d => d.acum)]);
+
             }
 
         },
@@ -273,7 +290,7 @@ const s = {
         prepare : () => {
 
             // os dados
-            const data = s.data.raw.filter(d => d.SG_TITULO == 'LTN'); // fazer o tipo de título ser um parâmetro da função prepare()
+            const data = s.data.filtered;
 
             // inicializa points
             s.data.points = data.map((d,i) => (
@@ -283,6 +300,7 @@ const s = {
                     y : null,
                     color : s.vis.scales.color(d.faixa_duracao),
                     r : s.vis.scales.r(d.VA_FINANCEIRO_ACEITO),
+                    h : s.vis.scales.h(d.acum),
                     next_x : {},
                     next_y : {}
                 })
