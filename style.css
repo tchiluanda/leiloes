@@ -81,6 +81,11 @@ canvas {
 
     position: absolute;
     margin: 0;
+
+}
+
+.axis-label {
+
     font-size: .8em;
     display: flex;
     flex-direction: column;
