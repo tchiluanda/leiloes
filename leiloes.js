@@ -790,8 +790,8 @@ const s = {
                 const x_axis_label = document.querySelector('.x-axis-label');
                 const y_axis_label = document.querySelector('.y-axis-label');
 
-                x_axis_label.style.right = s.labels.sizing.cont_margin_w + 'px';
-                y_axis_label.style.left  = s.labels.sizing.cont_margin_w + 'px';
+                x_axis_label.style.right = 100 * s.labels.sizing.cont_margin_w / s.labels.sizing.cont_w + '%';
+                y_axis_label.style.left  = 100 * s.labels.sizing.cont_margin_w / s.labels.sizing.cont_w + '%';
 
                 x_axis_label.style.height  = s.labels.sizing.cont_margin_h + 'px';
                 y_axis_label.style.height  = s.labels.sizing.cont_margin_h + 'px';
