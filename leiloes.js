@@ -90,7 +90,13 @@ const s = {
 
             x : (i, target, state) => s.utils.retrieve_destination_data.general(i, target, 'next_x', state),
 
-            y : (i, target, state) => s.utils.retrieve_destination_data.general(i, target, 'next_y', state)
+            y : (i, target, state) => s.utils.retrieve_destination_data.general(i, target, 'next_y', state),
+
+            h : (i, target, state) => s.utils.retrieve_destination_data.general(i, target, 'next_h', state),
+
+            w : (i, target, state) => s.utils.retrieve_destination_data.general(i, target, 'next_w', state),
+
+            m : (i, target, state) => s.utils.retrieve_destination_data.general(i, target, 'next_m', state),
 
         }
 
@@ -108,6 +114,8 @@ const s = {
             w : null,
             h : null,
             ratio : null,
+
+            barwidth : 50,
 
             margin : 100,
 
@@ -223,7 +231,7 @@ const s = {
                 
             },
 
-            'bar valor x ano leilao' : {
+            'barchar valor x ano leilao' : {
 
                 type : 'rects',
 
@@ -308,9 +316,15 @@ const s = {
                     y : null,
                     color : s.vis.scales.color(d.faixa_duracao),
                     r : s.vis.scales.r(d.VA_FINANCEIRO_ACEITO),
-                    h : s.vis.scales.h(d.VA_FINANCEIRO_ACEITO),
+                    h : 2 * s.vis.scales.r(d.VA_FINANCEIRO_ACEITO),
+                    w : 2 * s.vis.scales.r(d.VA_FINANCEIRO_ACEITO),
+                    m : null, // é o parâmetro que vai definir se é um circle ou um rect
                     next_x : {},
-                    next_y : {}
+                    next_y : {},
+                    next_h : {},
+                    next_w : {},
+                    next_m : {}
+
                 })
             );
 
@@ -361,6 +375,8 @@ const s = {
 
                     if (s.vis.states[state][dim].zero_based) {
 
+                        console.log(state, dim, s.vis.states[state][dim].zero_based)
+
                         s.vis.scales[dim]
                           .domain([0, d3.max(data, d => d[variable])]);
 
@@ -385,6 +401,15 @@ const s = {
                     points[i].next_y[state] = state == 'inicial' ? -100 : s.vis.scales.y(d[variavel_y]);
                     // se o estado for o inicial, seta o y para fora da área visível do canvas, para fazer uma animação inicial
 
+                    if (s.vis.states[state].type == "rects") {
+                        points[i].next_h[state] = s.vis.scales.h(d.VA_FINANCEIRO_ACEITO);
+                        points[i].next_w[state] = s.vis.sizing.barwidth;
+                        points[i].next_m[state] = 1;
+                    } else {
+                        points[i].next_h[state] = points[i].h;
+                        points[i].next_w[state] = points[i].w;
+                        points[i].next_m[state] = 0;
+                    }
 
                 })
 
@@ -429,7 +454,7 @@ const s = {
 
             points : (state, clear = true) => {
 
-                //, s.vis.states[state].type);
+                //console.log('HI', state, s.vis.states[state].type);
 
                 const height = s.vis.sizing.canvas_height;
                 const width = s.vis.sizing.canvas_width;
@@ -449,27 +474,25 @@ const s = {
 
                         point.x = point.next_x[state];
                         point.y = point.next_y[state];
+                        point.w = point.next_w[state];
+                        point.h = point.next_h[state];
 
                     } 
 
-                    const [x, y] = [
+                    const {x, y, w, h, r} = point;
 
-                        point.x,
-                        point.y
+                    /*if (s.vis.states[state].type == "rects") {//if (s.vis.states[s.control.current_state].type == "rects") {
 
-                    ];
+                        //ctx.globalAlpha = .5;
+                        ctx.fillRect(x-w/2, y-h/2, w, h);
 
-                    if (s.vis.states[s.control.current_state].type == "rects") {
-
-                        ctx.fillRect(x-50/2, y, 50, point.h);
-
-                    } else {
+                    } else {*/
 
                         ctx.globalAlpha = .5;
                         ctx.beginPath();
-                        ctx.arc(x, y, point.r, 0, 360, false);
+                        ctx.arc(x, y, r, 0, 360, false);
 
-                    }
+                    //}
 
                     ctx.fillStyle = point.color;
                     ctx.fill();
@@ -480,29 +503,237 @@ const s = {
 
         },
 
+        tween_square_circle : () => {
+  
+            const height = s.vis.sizing.canvas_height;
+            const width = s.vis.sizing.canvas_width;
+
+            const ctx = s.vis.canvas.getContext('2d');
+
+            ctx.globalAlpha = .5;
+            ctx.fillStyle = 'white';
+            ctx.fillRect(0, 0, width, height);
+
+            s.vis.render.axis();
+
+            s.data.points.forEach(point => {
+
+                const {x, y, r, m} = point;
+
+                ctx.fillStyle = point.color;
+                
+                if (m == 0) {
+                  
+                  ctx.beginPath();
+                  ctx.arc(x, y, r, 0, Math.PI*2, true);
+                  ctx.fill();
+                  //ctx.stroke();
+                     
+                } else if (m == 1) {
+                  
+                  ctx.fillRect(x - r, y - r, 2*r, 2*r);
+                
+                } else {
+                  
+                  const l = r * m;
+                  const R = Math.sqrt(l*l + r*r);
+                  const theta = Math.atan(l/r);
+                  
+                  ctx.beginPath();
+                  
+                  ctx.moveTo(x + r, y - l);
+                  ctx.lineTo(x + r, y + l);
+                  
+                  ctx.arc(x, 
+                          y, 
+                          R, 
+                          Math.PI * 2 - theta,
+                          Math.PI * 2 - (Math.PI/2 - theta), 
+                          true);
+                  
+                  ctx.lineTo(x - l, y - r);
+                  
+                  ctx.arc(x,
+                         y, 
+                         R,
+                         Math.PI * 2 - (Math.PI/2 + theta),
+                         Math.PI * 2 - (Math.PI - theta),
+                         true);
+                  
+                  ctx.lineTo(x - r, y + l);
+                  
+                  ctx.arc(x,
+                          y, 
+                          R,
+                          Math.PI * 2 - (Math.PI + theta),
+                          Math.PI * 2 - (Math.PI * 3/2 - theta),
+                          true);
+                  
+                  ctx.lineTo(x + l, y + r);
+                  
+                  ctx.arc(x,
+                          y, 
+                          R,
+                          Math.PI * 2 - (Math.PI * 3/2 + theta),
+                          Math.PI * 2 - (Math.PI * 2 - theta),
+                          true);
+                  
+                  //ctx.stroke();
+
+                  //ctx.fillStyle = point.color;
+                  ctx.fill();
+                 
+                }
+
+
+            })
+            
+        },
+
+        tween_square_rect : () => {
+
+            const height = s.vis.sizing.canvas_height;
+            const width = s.vis.sizing.canvas_width;
+
+            const ctx = s.vis.canvas.getContext('2d');
+
+            ctx.globalAlpha = 1;
+            ctx.fillStyle = 'white';
+            ctx.fillRect(0, 0, width, height);
+
+            s.vis.render.axis();
+
+            s.data.points.forEach(point => {
+
+                const {x, y, w, h} = point;
+        
+                ctx.fillStyle = point.color;
+                ctx.fillRect(x-w/2, y, w, h);
+
+            });
+
+        },
+
         animate : (state) => {
 
             // os states são
             //scatter taxa x ano leilao
             //scatter taxa x data leilao
 
-            gsap.to(s.data.points, {
-                duration: 2,
-                //delay: 0,
-                //delay: (i, target) => .1 * (i % 5),
-                delay: (i, target) => Math.random() * 0.6,
-                // stagger: { // wrap advanced options in an object
-                //     each: 0.0005,
-                //     from: "random",
-                //     ease: "power2.inOut",
-                //     repeat: 0 // Repeats immediately, not waiting for the other staggered animations to finish
-                // },
-                ease: "power2.inOut",
-                x : (i, target) => s.utils.retrieve_destination_data.x(i, target, state),
-                y : (i, target) => s.utils.retrieve_destination_data.y(i, target, state),
-                onUpdate : s.vis.render.points
-                } 
-            )
+            if (s.control.transition_rect_circle == 'to rect') {
+
+                // primeiro vira quadrado, depois ajusta tamanho retangulo, depois movimenta
+
+                console.log('aqui, to square!')
+
+                const tl = new gsap.timeline()
+                .to(
+                    s.data.points, {
+
+                        duration: 2,
+                        delay: (i, target) => Math.random() * 0.6,
+                        ease: "power2.inOut",
+                        x : (i, target) => s.utils.retrieve_destination_data.x(i, target, state),
+                        y : (i, target) => s.utils.retrieve_destination_data.y(i, target, state),
+                        onUpdate : s.vis.render.points
+                    } 
+                )
+                .to(
+                    s.data.points, {
+
+                        duration: .5,
+                        ease: "power2.inOut",
+                        m : (i, target) => s.utils.retrieve_destination_data.m(i, target, state),
+                        onUpdate : s.vis.tween_square_circle
+        
+                    }
+                )
+                .to(
+                    s.data.points, {
+
+                        duration: .5,
+                        ease: "power2.inOut",
+                        w : (i, target) => s.utils.retrieve_destination_data.w(i, target, state),
+                        h : (i, target) => s.utils.retrieve_destination_data.h(i, target, state),
+                        onUpdate : s.vis.tween_square_rect
+                    }
+                )
+
+                tl.play();
+
+                //s.vis.animate_square_circle(state, delay = 0);
+                //s.vis.animate_square_rect(state, delay = 1.1);
+
+            } else if (s.control.transition_rect_circle == 'to circle') {
+
+                // ajusta tamanho retangulo para virar quadrado, depois vira circulo, depois movimenta
+
+                const tl = new gsap.timeline()
+                .to(
+                    s.data.points, {
+
+                        duration: .5,
+                        ease: "power2.inOut",
+                        w : (i, target) => s.utils.retrieve_destination_data.w(i, target, state),
+                        h : (i, target) => s.utils.retrieve_destination_data.h(i, target, state),
+                        onUpdate : s.vis.tween_square_rect
+                    }
+                )
+                .to(
+                    s.data.points, {
+
+                        duration: .5,
+                        ease: "power2.inOut",
+                        m : (i, target) => s.utils.retrieve_destination_data.m(i, target, state),
+                        onUpdate : s.vis.tween_square_circle
+        
+                    }
+                )
+                .to(
+                    s.data.points, {
+
+                        duration: 2,
+                        delay: (i, target) => Math.random() * 0.6,
+                        ease: "power2.inOut",
+                        x : (i, target) => s.utils.retrieve_destination_data.x(i, target, state),
+                        y : (i, target) => s.utils.retrieve_destination_data.y(i, target, state),
+                        onUpdate : s.vis.render.points
+                    } 
+                );
+
+                tl.play();
+
+                //s.vis.animate_square_rect(state, delay = 0);
+                //s.vis.animate_square_circle(state, delay = 1.1);
+
+            } else {
+
+                gsap.to(s.data.points, {
+                    duration: 2,
+                    //delay: 0,
+                    //delay: (i, target) => .1 * (i % 5),
+                    delay: (i, target) => Math.random() * 0.6,
+                    // stagger: { // wrap advanced options in an object
+                    //     each: 0.0005,
+                    //     from: "random",
+                    //     ease: "power2.inOut",
+                    //     repeat: 0 // Repeats immediately, not waiting for the other staggered animations to finish
+                    // },
+                    ease: "power2.inOut",
+                    x : (i, target) => s.utils.retrieve_destination_data.x(i, target, state),
+                    y : (i, target) => s.utils.retrieve_destination_data.y(i, target, state),
+    
+                    // será que perde performance nos casos em que são bolhas, ou seja
+                    // quando w e h não vão ser usados?
+                    //w : (i, target) => s.utils.retrieve_destination_data.w(i, target, state),
+                    //h : (i, target) => s.utils.retrieve_destination_data.w(i, target, state),
+    
+                    onUpdate : s.vis.render.points
+                    } 
+                )
+
+
+            }
             
         }
 
@@ -538,6 +769,15 @@ const s = {
                 const novo_estado = e.target.value;
                 const estado_atual = s.control.current_state;
 
+                // verifica se vai ser necessário transição
+                if (s.vis.states[novo_estado].type == s.vis.states[estado_atual].type) {
+                    s.control.transition_rect_circle = 'none';
+                } else if (s.vis.states[novo_estado].type == 'bubbles') {
+                    s.control.transition_rect_circle = 'to circle';
+                } else {
+                    s.control.transition_rect_circle = 'to rect';
+                }
+
                 console.log(estado_atual, ' agora vai para o ', novo_estado);
 
                 if (!estado_atual) {
@@ -572,6 +812,7 @@ const s = {
     control : {
 
         current_state : 'inicial',
+        transition_rect_circle : 'none',
 
         //control.init => calls s.data.read => calls s.control.after_init
 
