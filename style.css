@@ -95,8 +95,8 @@ canvas {
 .x-axis-label {
     bottom : 0;
     text-align: right;
-    padding-top: .5em;
-    justify-content: flex-start;
+    padding-bottom: .5em;
+    justify-content: flex-end;
 }
 
 .y-axis-label {
@@ -105,4 +105,12 @@ canvas {
     padding-bottom: .5em;
     justify-content: flex-end;
     
+}
+
+.axis-ticks-values-x {
+
+    bottom: 0;
+    transform: translate(-50%, -50%);
+    font-size: .6rem;
+
 }

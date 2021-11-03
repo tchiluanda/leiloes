@@ -857,7 +857,30 @@ const s = {
 
         },
 
-        eixos : {}
+        eixos : {
+
+            populate : () => {
+
+                const anos = s.data.lista_anos;
+
+                const x = (data) => s.labels.sizing.cont_canvas_ratio_w * s.vis.scales.x['inicial'](data);
+
+                const bottom = s.labels.sizing.cont_margin_h - 20 // esse 10 do tamanho do tick. parametrizar!
+
+
+                d3.select('.canvas-container')
+                  .selectAll('p.axis-ticks-values-x')
+                  .data(anos)
+                  .join('p')
+                  .style('left', d => x(d) + 'px')
+                  .style('bottom', d => bottom + 'px')
+                  .classed('axis-ticks-values-x', true)
+                  .classed('chart-label', true)
+                  .text(d => d.getFullYear());
+
+            }
+
+        }
 
     },
 
