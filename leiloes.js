@@ -188,15 +188,17 @@ const s = {
                     
                     variable : 'date',
                     type : 'date',
+                    label : 'Data do Leilão'
 
                 },
 
                 y : {
                     
                     variable : 'VA_TAXA_ACEITA',
-                    type : 'numeric'
+                    type : 'numeric',
+                    label : 'Taxa'
 
-                }
+                },
 
             },
 
@@ -208,14 +210,16 @@ const s = {
 
                     variable : 'date_year',
                     type : 'date',
-                    domain_variable : 'date'
+                    domain_variable : 'date',
+                    label : 'Ano do Leilão'
 
                 },
 
                 y : {
                     
                     variable : 'VA_TAXA_ACEITA',
-                    type : 'numeric'
+                    type : 'numeric',
+                    label : 'Taxa'
 
                 }
 
@@ -229,13 +233,15 @@ const s = {
 
                     variable : 'duracao',
                     type : 'numeric',
+                    label : 'Tempo até o vencimento (anos)'
 
                 },
 
                 y : {
                     
                     variable : 'VA_TAXA_ACEITA',
-                    type : 'numeric'
+                    type : 'numeric',
+                    label : 'Taxa'
 
                 }
                 
@@ -249,7 +255,8 @@ const s = {
 
                     variable : 'date_year',
                     type : 'date',
-                    domain_variable : 'date'
+                    domain_variable : 'date',
+                    label : 'Ano do Leilão'
 
                 },
 
@@ -257,7 +264,8 @@ const s = {
                     
                     variable : 'acum',
                     type : 'numeric',
-                    zero_based : true
+                    zero_based : true,
+                    label : 'Valor da emissão (R$ milhões)'
 
                 }
                 
@@ -749,6 +757,53 @@ const s = {
 
     },
 
+    labels : {
+
+        sizing : {
+
+            cont_w : null,
+            cont_h : null,
+
+            cont_canvas_ratio_w : null,
+            cont_canvas_ratio_h : null,
+
+            cont_margin_w : null,
+            cont_margin_h : null,
+
+            get_size : () => {
+
+                const cont = document.querySelector('.canvas-container');
+
+                s.labels.sizing.cont_w = +window.getComputedStyle(cont).width.slice(0,-2);
+                s.labels.sizing.cont_h = +window.getComputedStyle(cont).height.slice(0,-2);
+
+                s.labels.sizing.cont_canvas_ratio_w = s.labels.sizing.cont_w / s.vis.sizing.canvas_width;
+                s.labels.sizing.cont_canvas_ratio_h = s.labels.sizing.cont_h / s.vis.sizing.canvas_height;
+
+                s.labels.sizing.cont_margin_w = s.labels.sizing.cont_canvas_ratio_w * s.vis.sizing.margin;
+                s.labels.sizing.cont_margin_h = s.labels.sizing.cont_canvas_ratio_h * s.vis.sizing.margin;
+
+            },
+
+            set_size : () => {
+
+                const x_axis_label = document.querySelector('.x-axis-label');
+                const y_axis_label = document.querySelector('.y-axis-label');
+
+                x_axis_label.style.right = s.labels.sizing.cont_margin_w + 'px';
+                y_axis_label.style.left  = s.labels.sizing.cont_margin_w + 'px';
+
+                x_axis_label.style.height  = s.labels.sizing.cont_margin_h + 'px';
+                y_axis_label.style.height  = s.labels.sizing.cont_margin_h + 'px';
+
+            }
+
+        },
+
+        eixos : {}
+
+    },
+
     interaction : {
 
         el : document.querySelector('select#estado'),
@@ -851,6 +906,12 @@ const s = {
             // get canvas size
             s.vis.sizing.get_size();
             s.vis.sizing.set_resolution();
+
+            // get container size
+            s.labels.sizing.get_size();
+
+            // posiciona labels
+            s.labels.sizing.set_size();
 
             // prepare
             s.vis.scales.set_color_and_radius();
