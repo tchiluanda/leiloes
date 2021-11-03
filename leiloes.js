@@ -168,13 +168,15 @@ const s = {
                     
                     variable : 'date',
                     type : 'date',
+                    label : ''
 
                 },
 
                 y : {
                     
                     variable : 'VA_TAXA_ACEITA',
-                    type : 'numeric'
+                    type : 'numeric',
+                    label : ''
 
                 }
 
@@ -796,7 +798,18 @@ const s = {
                 x_axis_label.style.height  = s.labels.sizing.cont_margin_h + 'px';
                 y_axis_label.style.height  = s.labels.sizing.cont_margin_h + 'px';
 
-            }
+            },
+
+        },
+
+        update_labels : (state) => {
+
+            const x_axis_label = document.querySelector('.x-axis-label');
+            x_axis_label.innerHTML = s.vis.states[state].x.label;
+
+            const y_axis_label = document.querySelector('.y-axis-label');
+            y_axis_label.innerHTML = s.vis.states[state].y.label;
+
 
         },
 
@@ -854,6 +867,8 @@ const s = {
                     s.vis.animate(novo_estado);
 
                 }
+
+                s.labels.update_labels(novo_estado);
 
                 s.control.current_state = novo_estado;
 
