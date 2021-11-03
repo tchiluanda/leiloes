@@ -95,7 +95,7 @@ canvas {
 .x-axis-label {
     bottom : 0;
     text-align: right;
-    padding-bottom: .5em;
+    padding-bottom: .2rem;
     justify-content: flex-end;
 }
 
@@ -112,5 +112,40 @@ canvas {
     bottom: 0;
     transform: translate(-50%, -50%);
     font-size: .6rem;
+
+}
+
+.legenda-cor {
+
+    display: flex;
+    position: absolute;
+    bottom: 0;
+    padding-bottom: .2rem;
+    --font-size-legenda-cor: .7em;
+    align-items: center;
+
+}
+
+.legenda-cor-entrada {
+
+    display: flex;
+    margin-right: .5rem;
+    align-items: center;
+
+}
+
+.legenda-cor-entrada-key {
+
+    border-radius: 50%;
+    width: var(--font-size-legenda-cor);
+    height: var(--font-size-legenda-cor);
+    margin-right: .25rem;
+    opacity: .8;
+
+}
+
+.legenda-cor-entrada-texto {
+
+    font-size: var(--font-size-legenda-cor);
 
 }

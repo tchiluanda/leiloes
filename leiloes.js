@@ -880,6 +880,53 @@ const s = {
 
             }
 
+        },
+
+        legenda_cor : {
+
+            populate : () => {
+
+                const cor = s.vis.scales.color;
+
+                const cores = cor.range();
+                const faixas = cor.domain();
+                const n = cores.length;
+
+                const cont = document.querySelector('.legenda-cor');
+
+                const texto_inicial_wrapper = document.createElement('div');
+                texto_inicial_wrapper.classList.add('legenda-cor-entrada');
+                const texto_inicial = document.createElement('strong');
+                texto_inicial.innerHTML = 'Tempo até o vencimento';
+                texto_inicial.classList.add('legenda-cor-entrada-texto');
+                texto_inicial_wrapper.appendChild(texto_inicial);
+                cont.appendChild(texto_inicial_wrapper);
+
+                cont.style.left = s.labels.sizing.cont_margin_h + 'px';
+
+                for (let i = 0; i < n; i++) {
+
+                    const entrada = document.createElement('div');
+                    entrada.classList.add('legenda-cor-entrada');
+
+                    const entrada_key = document.createElement('span');
+                    entrada_key.classList.add('legenda-cor-entrada-key');
+                    entrada_key.style.backgroundColor = cores[i];
+
+                    const entrada_texto = document.createElement('span');
+                    entrada_texto.classList.add('legenda-cor-entrada-texto');
+                    entrada_texto.innerHTML = faixas[i];
+
+                    entrada.appendChild(entrada_key);
+                    entrada.appendChild(entrada_texto);
+
+                    cont.appendChild(entrada);
+
+                }
+
+                
+
+            }
         }
 
     },
@@ -1002,6 +1049,10 @@ const s = {
             // draw axis
             s.vis.render.axis();
             s.vis.render.points('inicial');
+
+            // axis ticks labels e legenda
+            s.labels.eixos.populate();
+            s.labels.legenda_cor.populate();
 
 
         }
