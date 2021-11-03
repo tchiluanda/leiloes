@@ -80,10 +80,10 @@ canvas {
 .chart-label {
 
     position: absolute;
-    display: inline-block;
     margin: 0;
     font-size: .8em;
     display: flex;
+    flex-direction: column;
 
 }
 
