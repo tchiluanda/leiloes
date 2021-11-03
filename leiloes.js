@@ -18,6 +18,8 @@ const s = {
 
         },
 
+        lista_anos : null,
+
         points : [],
 
         read : function() {
@@ -81,6 +83,14 @@ const s = {
             if (ref == 'qde_leiloes') { value = s.utils.format_thousands(value)}
 
             el.innerText = value;
+
+        },
+
+        monta_lista_anos : () => {
+
+            const anos = s.utils.unique(s.data.raw.map(d => d.year));
+            
+            return anos.map(d => new Date(d, 0, 1));
 
         },
 
@@ -259,8 +269,8 @@ const s = {
         scales : {
 
             // esses x e y vao depender dos estados, vao ser setados no s.vis.prepare
-            x : null,
-            y : null,
+            x : {},
+            y : {},
 
             color : null,
             r : null,
@@ -365,11 +375,11 @@ const s = {
     
                     if (s.vis.states[state][dim].type == 'date') {
 
-                        s.vis.scales[dim] = d3.scaleTime();
+                        s.vis.scales[dim][state] = d3.scaleTime();
 
                     } else {
     
-                        s.vis.scales[dim] = d3.scaleLinear();
+                        s.vis.scales[dim][state] = d3.scaleLinear();
     
                     }
 
@@ -377,18 +387,18 @@ const s = {
 
                         console.log(state, dim, s.vis.states[state][dim].zero_based)
 
-                        s.vis.scales[dim]
+                        s.vis.scales[dim][state]
                           .domain([0, d3.max(data, d => d[variable])]);
 
                     }
     
-                    s.vis.scales[dim]
+                    s.vis.scales[dim][state]
                       .domain(d3.extent(data, d => d[variable]));
                 
                 })
 
-                s.vis.scales.x.range([margin, width - margin]);
-                s.vis.scales.y.range([height - margin, margin]);
+                s.vis.scales.x[state].range([margin, width - margin]);
+                s.vis.scales.y[state].range([height - margin, margin]);
 
                 // reaponta variavel_x e variavel_y para a variavel que de fato tem que ser mapeada
                 variavel_x = s.vis.states[state].x.variable
@@ -397,8 +407,8 @@ const s = {
                 // vai construindo o array points
                 data.forEach( (d,i) => {
 
-                    points[i].next_x[state] = s.vis.scales.x(d[variavel_x]);
-                    points[i].next_y[state] = state == 'inicial' ? -100 : s.vis.scales.y(d[variavel_y]);
+                    points[i].next_x[state] = s.vis.scales.x[state](d[variavel_x]);
+                    points[i].next_y[state] = state == 'inicial' ? -100 : s.vis.scales.y[state](d[variavel_y]);
                     // se o estado for o inicial, seta o y para fora da área visível do canvas, para fazer uma animação inicial
 
                     if (s.vis.states[state].type == "rects") {
@@ -825,6 +835,8 @@ const s = {
             s.data.summary.qde_leiloes = s.utils.count(data);
             s.data.summary.va_financeiro_total = s.utils.sum_column(data, 'VA_FINANCEIRO_ACEITO');
             s.data.summary.qde_anos = s.utils.unique(s.data.raw.map(d => d.year)).length;
+
+            s.data.lista_anos = s.utils.monta_lista_anos();
 
             // popula textos
             const summary_keys = Object.keys(s.data.summary);
