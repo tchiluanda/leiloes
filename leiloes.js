@@ -168,7 +168,8 @@ const s = {
                     
                     variable : 'date',
                     type : 'date',
-                    label : ''
+                    label : '',
+                    zero_based : true,
 
                 },
 
@@ -190,7 +191,8 @@ const s = {
                     
                     variable : 'date',
                     type : 'date',
-                    label : 'Data do Leilão'
+                    label : 'Data do Leilão',
+                    zero_based : true,
 
                 },
 
@@ -213,7 +215,8 @@ const s = {
                     variable : 'date_year',
                     type : 'date',
                     domain_variable : 'date',
-                    label : 'Ano do Leilão'
+                    label : 'Ano do Leilão',
+                    zero_based : true,
 
                 },
 
@@ -235,7 +238,8 @@ const s = {
 
                     variable : 'duracao',
                     type : 'numeric',
-                    label : 'Tempo até o vencimento (anos)'
+                    label : 'Tempo até o vencimento (anos)',
+                    zero_based : true,
 
                 },
 
@@ -258,7 +262,8 @@ const s = {
                     variable : 'date_year',
                     type : 'date',
                     domain_variable : 'date',
-                    label : 'Ano do Leilão'
+                    label : 'Ano do Leilão',
+                    zero_based : true,
 
                 },
 
@@ -321,7 +326,6 @@ const s = {
             }
 
         },
-
 
         prepare : () => {
 
@@ -395,16 +399,30 @@ const s = {
 
                     if (s.vis.states[state][dim].zero_based) {
 
-                        console.log(state, dim, s.vis.states[state][dim].zero_based)
+                        console.log(state, dim, s.vis.states[state][dim].zero_based);
+
+                        let zero;
+
+                        if(s.vis.states[state][dim].type == 'date') {
+
+                            zero = s.data.lista_anos[0];
+
+                        } else {
+
+                            zero = 0;
+
+                        }
 
                         s.vis.scales[dim][state]
-                          .domain([0, d3.max(data, d => d[variable])]);
+                          .domain([zero, d3.max(data, d => d[variable])]);
+
+                    } else {
+
+                        s.vis.scales[dim][state]
+                          .domain(d3.extent(data, d => d[variable]));
 
                     }
     
-                    s.vis.scales[dim][state]
-                      .domain(d3.extent(data, d => d[variable]));
-                
                 })
 
                 s.vis.scales.x[state].range([margin, width - margin]);
@@ -469,6 +487,32 @@ const s = {
                 ctx.lineTo(x1, y0);
                 ctx.closePath();
                 ctx.stroke();
+
+                const state = s.control.current_state;
+
+                s.vis.render.axis_ticks(ctx, x0, y0);
+
+            },
+
+            axis_ticks : (ctx, x0, y0) => {
+
+                //
+                const anos = s.data.lista_anos;
+                //const datas_anos = s.data.
+
+                const x = s.vis.scales.x['inicial'];
+
+                anos.forEach(ano => {
+
+                    console.log(ano, x(ano), x0)
+
+                    ctx.beginPath();
+                    ctx.moveTo(x(ano), y0);
+                    ctx.lineTo(x(ano), y0 + 10);
+                    ctx.closePath();
+                    ctx.stroke();
+
+                })
 
             },
 
