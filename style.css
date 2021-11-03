@@ -2,6 +2,19 @@
     box-sizing: border-box;
 }
 
+body {
+
+    font-family: 'Work Sans';
+
+}
+
+h1 {
+
+    text-align: center;
+    font-size: 1.6rem;
+
+}
+
 /* * * * * * * * * * * * * * * * * * * */
 /* = = = = = GENERAL  LAYOUT = = = = = */
 /* * * * * * * * * * * * * * * * * * * */
@@ -37,18 +50,18 @@
 /* = = = = = = SELETOR = = = = = = = = */
 /* * * * * * * * * * * * * * * * * * * */
 
-select#estado { 
+select { 
     
     padding: .5em 1em;
     margin-bottom: 1rem;
-    font-family: 'Times News Roman';
+    font-family: 'Work Sans';
     font-size: 1rem;
     border: 3px solid hotpink;
     border-radius: 5px;
 
 }
 
-select#estado:focus-visible {
+select:focus-visible {
 
     outline: 2px solid hotpink;
 }
