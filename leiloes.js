@@ -92,7 +92,9 @@ const s = {
 
             y : (i, target, state) => s.utils.retrieve_destination_data.general(i, target, 'next_y', state),
 
-            h : (i, target, state) => s.utils.retrieve_destination_data.general(i, target, 'next_h', state)
+            h : (i, target, state) => s.utils.retrieve_destination_data.general(i, target, 'next_h', state),
+
+            w : (i, target, state) => s.utils.retrieve_destination_data.general(i, target, 'next_w', state),
 
         }
 
@@ -110,6 +112,8 @@ const s = {
             w : null,
             h : null,
             ratio : null,
+
+            barwidth : 50,
 
             margin : 100,
 
@@ -311,9 +315,11 @@ const s = {
                     color : s.vis.scales.color(d.faixa_duracao),
                     r : s.vis.scales.r(d.VA_FINANCEIRO_ACEITO),
                     h : 2 * s.vis.scales.r(d.VA_FINANCEIRO_ACEITO),
+                    w : 2 * s.vis.scales.r(d.VA_FINANCEIRO_ACEITO),
                     next_x : {},
                     next_y : {},
-                    next_h : {}
+                    next_h : {},
+                    next_w : {}
                 })
             );
 
@@ -390,8 +396,10 @@ const s = {
 
                     if (s.vis.states[state].type == "rects") {
                         points[i].next_h[state] = s.vis.scales.h(d.VA_FINANCEIRO_ACEITO);
+                        points[i].next_w[state] = s.vis.sizing.barwidth;
                     } else {
                         points[i].next_h[state] = points[i].h;
+                        points[i].next_w[state] = points[i].w;
                     }
 
                 })
