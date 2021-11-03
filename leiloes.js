@@ -479,6 +479,7 @@ const s = {
 
                     if (s.vis.states[s.control.current_state].type == "rects") {
 
+                        //ctx.globalAlpha = .5;
                         ctx.fillRect(x-w/2, y, w, h);
 
                     } else {
@@ -505,6 +506,7 @@ const s = {
 
             const ctx = s.vis.canvas.getContext('2d');
 
+            ctx.globalAlpha = .5;
             ctx.fillStyle = 'white';
             ctx.fillRect(0, 0, width, height);
 
