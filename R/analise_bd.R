@@ -26,7 +26,7 @@ data_pre <- data_raw %>%
     QT_ACEITA != 0) %>%
   mutate(ano_leilao = year(DT_LEILAO),
          mes_ano = paste0(year(DT_LEILAO), str_pad(month(DT_LEILAO), width = 2, pad = '0'))) %>%
-  arrange(SG_TITULO, ano_leilao) %>%
+  arrange(SG_TITULO, ano_leilao, duracao) %>%
   group_by(SG_TITULO, ano_leilao) %>%
   mutate(acum = cumsum(VA_FINANCEIRO_ACEITO)) %>%
   ungroup()
@@ -112,13 +112,15 @@ ggplot(data_pre,
        aes(
          x = ano_leilao, 
          y = VA_FINANCEIRO_ACEITO, 
-         fill = SG_TITULO
+         fill = faixa_duracao, #fill = SG_TITULO
          )) + 
   geom_col() +
   labs(x = "Ano do Leilão", y = "Valor total", fill = "Tipo de título") + 
   scale_y_continuous(labels = function(x) {paste(format(round(x/1e9)), "bi")}) +
-  scale_fill_brewer(palette = "Set2") +
+  scale_fill_discrete_sequential("SunsetDark") +
+  #scale_fill_brewer(palette = "Set2") +
   facet_wrap(~SG_TITULO)
+
 
 #valores totais por ano, por título, stacked
 ggplot(data_pre, 
