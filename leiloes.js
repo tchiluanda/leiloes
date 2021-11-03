@@ -96,6 +96,8 @@ const s = {
 
             w : (i, target, state) => s.utils.retrieve_destination_data.general(i, target, 'next_w', state),
 
+            m : (i, target, state) => s.utils.retrieve_destination_data.general(i, target, 'next_m', state),
+
         }
 
     },
@@ -316,10 +318,13 @@ const s = {
                     r : s.vis.scales.r(d.VA_FINANCEIRO_ACEITO),
                     h : 2 * s.vis.scales.r(d.VA_FINANCEIRO_ACEITO),
                     w : 2 * s.vis.scales.r(d.VA_FINANCEIRO_ACEITO),
+                    m : null, // é o parâmetro que vai definir se é um circle ou um rect
                     next_x : {},
                     next_y : {},
                     next_h : {},
-                    next_w : {}
+                    next_w : {},
+                    next_m : {}
+
                 })
             );
 
@@ -397,9 +402,11 @@ const s = {
                     if (s.vis.states[state].type == "rects") {
                         points[i].next_h[state] = s.vis.scales.h(d.VA_FINANCEIRO_ACEITO);
                         points[i].next_w[state] = s.vis.sizing.barwidth;
+                        points[i].next_m[state] = 1;
                     } else {
                         points[i].next_h[state] = points[i].h;
                         points[i].next_w[state] = points[i].w;
+                        points[i].next_m[state] = 0;
                     }
 
                 })
@@ -468,22 +475,17 @@ const s = {
 
                     } 
 
-                    const [x, y] = [
-
-                        point.x,
-                        point.y
-
-                    ];
+                    const {x, y, w, h, r} = point;
 
                     if (s.vis.states[s.control.current_state].type == "rects") {
 
-                        ctx.fillRect(x-50/2, y, 50, point.h);
+                        ctx.fillRect(x-w/2, y, w, h);
 
                     } else {
 
                         ctx.globalAlpha = .5;
                         ctx.beginPath();
-                        ctx.arc(x, y, point.r, 0, 360, false);
+                        ctx.arc(x, y, r, 0, 360, false);
 
                     }
 
@@ -493,6 +495,117 @@ const s = {
                 })
     
             }
+
+        },
+
+        tween_rect_circle : () => {
+  
+            const height = s.vis.sizing.canvas_height;
+            const width = s.vis.sizing.canvas_width;
+
+            const ctx = s.vis.canvas.getContext('2d');
+
+            ctx.fillStyle = 'white';
+            ctx.fillRect(0, 0, width, height);
+
+            s.data.points.forEach(point => {
+
+                const {x, y, r, m} = point;
+
+                ctx.fillStyle = point.color;
+                
+                if (m == 0) {
+                  
+                  ctx.beginPath();
+                  ctx.arc(x, y, r, 0, Math.PI*2, true);
+                  ctx.fill();
+                  //ctx.stroke();
+                     
+                } else if (m == 1) {
+                  
+                  ctx.fillRect(x - r, y - r, 2*r, 2*r);
+                
+                } else {
+                  
+                  const l = r * m;
+                  const R = Math.sqrt(l*l + r*r);
+                  const theta = Math.atan(l/r);
+                  
+                  ctx.beginPath();
+                  
+                  ctx.moveTo(x + r, y - l);
+                  ctx.lineTo(x + r, y + l);
+                  
+                  ctx.arc(x, 
+                          y, 
+                          R, 
+                          Math.PI * 2 - theta,
+                          Math.PI * 2 - (Math.PI/2 - theta), 
+                          true);
+                  
+                  ctx.lineTo(x - l, y - r);
+                  
+                  ctx.arc(x,
+                         y, 
+                         R,
+                         Math.PI * 2 - (Math.PI/2 + theta),
+                         Math.PI * 2 - (Math.PI - theta),
+                         true);
+                  
+                  ctx.lineTo(x - r, y + l);
+                  
+                  ctx.arc(x,
+                          y, 
+                          R,
+                          Math.PI * 2 - (Math.PI + theta),
+                          Math.PI * 2 - (Math.PI * 3/2 - theta),
+                          true);
+                  
+                  ctx.lineTo(x + l, y + r);
+                  
+                  ctx.arc(x,
+                          y, 
+                          R,
+                          Math.PI * 2 - (Math.PI * 3/2 + theta),
+                          Math.PI * 2 - (Math.PI * 2 - theta),
+                          true);
+                  
+                  //ctx.stroke();
+
+                  //ctx.fillStyle = point.color;
+                  ctx.fill();
+                 
+                }
+
+
+            })
+            
+        },
+
+        animate_rect_to_circle : (state) => {
+
+            gsap.to(s.data.points, {
+
+                duration: 1,
+                ease: "power2.inOut",
+                m : (i, target) => s.utils.retrieve_destination_data.m(i, target, state),
+                onUpdate : s.vis.tween_rect_circle
+
+            })
+
+        },
+
+        animate_square_to_rect : (state) => {
+
+            gsap.to(s.data.points, {
+
+                duration: 1,
+                ease: "power2.inOut",
+                w : (i, target) => s.utils.retrieve_destination_data.w(i, target, state),
+                h : (i, target) => s.utils.retrieve_destination_data.w(i, target, state),
+                onUpdate : s.vis.tween_rect_circle
+
+            })
 
         },
 
@@ -516,6 +629,12 @@ const s = {
                 ease: "power2.inOut",
                 x : (i, target) => s.utils.retrieve_destination_data.x(i, target, state),
                 y : (i, target) => s.utils.retrieve_destination_data.y(i, target, state),
+
+                // será que perde performance nos casos em que são bolhas, ou seja
+                // quando w e h não vão ser usados?
+                w : (i, target) => s.utils.retrieve_destination_data.w(i, target, state),
+                h : (i, target) => s.utils.retrieve_destination_data.w(i, target, state),
+
                 onUpdate : s.vis.render.points
                 } 
             )
