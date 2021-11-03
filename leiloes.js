@@ -480,7 +480,7 @@ const s = {
                     if (s.vis.states[s.control.current_state].type == "rects") {
 
                         //ctx.globalAlpha = .5;
-                        ctx.fillRect(x-w/2, y, w, h);
+                        ctx.fillRect(x-w/2, y-h/2, w, h);
 
                     } else {
 
@@ -584,6 +584,28 @@ const s = {
             
         },
 
+        tween_square_rect : () => {
+
+            const height = s.vis.sizing.canvas_height;
+            const width = s.vis.sizing.canvas_width;
+
+            const ctx = s.vis.canvas.getContext('2d');
+
+            ctx.globalAlpha = .5;
+            ctx.fillStyle = 'white';
+            ctx.fillRect(0, 0, width, height);
+
+            s.data.points.forEach(point => {
+
+                const {x, y, w, h} = point;
+        
+                ctx.fillStyle = point.color;
+                ctx.fillRect(x-w/2, y-h/2, w, h);
+
+            });
+
+        },
+
         animate_rect_to_circle : (state) => {
 
             gsap.to(s.data.points, {
@@ -604,8 +626,8 @@ const s = {
                 duration: 1,
                 ease: "power2.inOut",
                 w : (i, target) => s.utils.retrieve_destination_data.w(i, target, state),
-                h : (i, target) => s.utils.retrieve_destination_data.w(i, target, state),
-                onUpdate : s.vis.tween_rect_circle
+                h : (i, target) => s.utils.retrieve_destination_data.h(i, target, state),
+                onUpdate : s.vis.tween_square_rect
 
             })
 
