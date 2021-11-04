@@ -119,7 +119,7 @@ ggplot(data_pre,
   scale_y_continuous(labels = function(x) {paste(format(round(x/1e9)), "bi")}) +
   scale_fill_discrete_sequential("SunsetDark") +
   #scale_fill_brewer(palette = "Set2") +
-  facet_wrap(~SG_TITULO)
+  facet_wrap(~SG_TITULO) + theme_bw()
 
 
 #valores totais por ano, por título, stacked
@@ -145,6 +145,50 @@ ggplot(data_pre,
   labs(x = "Ano do Leilão", y = "Valor total", fill = "Tipo de título") + 
   scale_y_continuous(labels = function(x) {paste(format(round(x/1e9)), "bi")}) +
   scale_fill_brewer(palette = "Set2")
+
+# valores totais por ano, por vencimento, stacked, por título
+
+ggplot(data_pre, 
+       aes(
+         x = ano_leilao, 
+         y = VA_FINANCEIRO_ACEITO, 
+         fill = faixa_duracao
+       )) + 
+  geom_col() +
+  labs(x = "Ano do Leilão", y = "Valor total", fill = "Tipo de título") + 
+  scale_y_continuous(labels = function(x) {paste(format(round(x/1e9)), "bi")}) +
+  scale_fill_discrete_sequential("SunsetDark") +
+  facet_wrap(~SG_TITULO) +
+  theme_bw()
+
+# Totais por ano do vencimento (de 2021 em diante), por faixa de duração -- para cada título
+
+ggplot(data_pre %>% filter(year(DT_VENCIMENTO_TITULO) >= 2021), 
+       aes(
+         x = year(DT_VENCIMENTO_TITULO), 
+         y = VA_FINANCEIRO_ACEITO, 
+         fill = faixa_duracao
+       )) + 
+  geom_col() +
+  labs(x = "Ano do Leilão", y = "Valor total", fill = "Faixa de duração") + 
+  scale_y_continuous(labels = function(x) {paste(format(round(x/1e9)), "bi")}) +
+  scale_fill_discrete_sequential("SunsetDark") +
+  facet_wrap(~SG_TITULO) +
+  theme_bw()
+
+# Totais por ano do vencimento (de 2021 em diante), por título
+
+ggplot(data_pre %>% filter(year(DT_VENCIMENTO_TITULO) >= 2021), 
+       aes(
+         x = year(DT_VENCIMENTO_TITULO), 
+         y = VA_FINANCEIRO_ACEITO, 
+         fill = SG_TITULO
+       )) + 
+  geom_col() +
+  labs(x = "Ano do Leilão", y = "Valor total", fill = "Título") + 
+  scale_y_continuous(labels = function(x) {paste(format(round(x/1e9)), "bi")}) +
+  scale_fill_brewer(palette = 'Set2') +
+  theme_bw()
 
 # stats -------------------------------------------------------------------
 
