@@ -1,0 +1,254 @@
+---
+title: "Projeto Leilões da Dívida"
+author: "GT-CEAD"
+date: "Posição em outubro de 2021"
+output:
+  html_document:
+    df_print: paged
+    theme: sandstone
+  pdf_document: default
+  word_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning=FALSE, message = FALSE)
+```
+
+## Análise da Base Completa e Protótipos de Visualizações
+
+Os dados agora cobrem toda a base de leilões.
+
+### Pacotes, carga e preparação dos dados
+
+```{r pacotes}
+library(tidyverse)
+library(lubridate)
+library(RColorBrewer)
+library(viridis)
+library(colorspace)
+library(readxl)
+
+data_leilao_raw      <- read_excel('../dados-entrada/_LEILOES/LEILAO.xlsx')
+data_titulo_raw      <- read_excel('../dados-entrada/_LEILOES/LEILAO_VENCIMENTO_TITULO.xlsx')
+data_tipo_titulo_raw <- read_excel('../dados-entrada/_LEILOES/TITULO.xlsx')
+
+data_raw <- data_titulo_raw %>%
+  left_join(data_leilao_raw) %>%
+  left_join(data_tipo_titulo_raw)
+
+data_pre <- data_raw %>%
+  mutate_at(vars(starts_with('DT_')), ~lubridate::dmy(.)) %>%
+  mutate(duracao = interval(DT_LEILAO, DT_VENCIMENTO_TITULO)/years(1),
+         faixa_duracao = cut(duracao, 
+                             #breaks = c(0, 1, 2, 5, 10, 20, 30, 50),
+                             #labels = c('até 1 ano', '1 a 2', '2 a 5', '5 a 10', '10 a 20', '20 a 30', '30 e acima'))) %>%
+                             breaks = c(0, 1, 2, 5, 10, Inf),
+                             labels = c('até 1 ano', '1 a 2 anos', '2 a 5 anos', '5 a 10 anos', 'Acima de 10 anos'))) %>%
+  filter(
+    SG_TITULO != 'BTN-BIB',
+    QT_ACEITA != 0) %>%
+  mutate(ano_leilao = year(DT_LEILAO),
+         mes_ano = paste0(year(DT_LEILAO), str_pad(month(DT_LEILAO), width = 2, pad = '0'))) %>%
+  arrange(SG_TITULO, ano_leilao, duracao) %>%
+  group_by(SG_TITULO, ano_leilao) %>%
+  mutate(acum = cumsum(VA_FINANCEIRO_ACEITO)) %>%
+  ungroup()
+
+head(data_pre)
+
+str(data_pre)
+```
+
+### Protótipos dos Gráficos
+
+#### Data do Leilão x Data do Vencimento
+
+```{r}
+ggplot(data_pre, aes(
+  y = DT_VENCIMENTO_TITULO, 
+  x = DT_LEILAO, 
+  size = VA_FINANCEIRO_ACEITO,
+  color = SG_TITULO)) + 
+  geom_point()
+```
+
+#### Data leilão x juros aceite
+
+```{r}
+graf_dataXjuros <- ggplot(data_pre, aes(
+  y = VA_TAXA_ACEITA, 
+  x = DT_LEILAO, 
+  size = VA_FINANCEIRO_ACEITO,
+  #color = Bond.Type
+  fill = faixa_duracao
+  )) + 
+  geom_point(alpha = .5, shape = 21, stroke = 0) +
+  #scale_color_brewer(palette = 'YlOrRd')
+  labs(y = "Taxa Aceita", x = "Data do Leilão", fill = "Duração") +
+  #scale_fill_viridis_d(option = "A", direction = -1) +
+  scale_fill_discrete_sequential("SunsetDark") +
+  guides(fill = guide_legend(override.aes = list(size=5)),
+         size = FALSE) +
+  theme_bw()
+
+graf_dataXjuros
+```
+
+#### Data leilão x juros aceite -- pequenos múltiplos
+
+```{r}
+graf_dataXjuros + facet_wrap(~SG_TITULO, scales = "free")
+```
+#### Taxa Aceita x ano do leilão
+
+Juntando todos os leilões de um ano numa mesma posição vertical para ter uma ideia melhor da variação da taxa naquele ano.
+
+```{r}
+## variacao em cada ano
+
+ggplot(data_pre, aes(
+  y = VA_TAXA_ACEITA, 
+  x = ano_leilao, 
+  #color = Bond.Type
+  fill = faixa_duracao
+)) + 
+  geom_point(alpha = .5, shape = 21, stroke = 0) +
+  #scale_color_brewer(palette = 'YlOrRd')
+  labs(y = "Taxa Aceita", x = "Data do Leilão", fill = "Duração") +
+  #scale_fill_viridis_d(option = "A", direction = -1) +
+  scale_fill_discrete_sequential("SunsetDark") +
+  guides(fill = guide_legend(override.aes = list(size=5)),
+         size = FALSE) +
+  theme_bw() + facet_wrap(~SG_TITULO, scales = "free")
+```
+
+
+#### Taxa Aceita x Tempo até o vencimento
+
+```{r}
+ggplot(data_pre, aes(
+  y = VA_TAXA_ACEITA, 
+  x = duracao, 
+  size = VA_FINANCEIRO_ACEITO,
+  #color = Bond.Type
+  fill = ano_leilao
+)) + 
+  geom_point(alpha = .5, shape = 21, stroke = 0) +
+  #scale_color_brewer(palette = 'YlOrRd')
+  labs(y = "Taxa Aceita", x = "Duração", fill = "Ano do leilão") +
+  #scale_fill_viridis_d(option = "A", direction = -1) +
+  scale_fill_continuous_sequential("SunsetDark") +
+  guides(fill = guide_legend(override.aes = list(size=5)),
+         size = FALSE) +
+  theme_bw() + facet_wrap(~SG_TITULO, scales = "free")
+```
+
+
+#### Sumário do total por tipo de título
+
+```{r}
+ggplot(data_pre, aes(y = SG_TITULO, x = VA_FINANCEIRO_ACEITO)) + geom_col()
+```
+
+#### Sumário do total por tipo de título e por ano
+
+```{r}
+ggplot(data_pre, 
+       aes(
+         x = ano_leilao, 
+         y = VA_FINANCEIRO_ACEITO, 
+         fill = faixa_duracao, #fill = SG_TITULO
+         )) + 
+  geom_col() +
+  labs(x = "Ano do Leilão", y = "Valor total", fill = "Tipo de título") + 
+  scale_y_continuous(labels = function(x) {paste(format(round(x/1e9)), "bi")}) +
+  scale_fill_discrete_sequential("SunsetDark") +
+  #scale_fill_brewer(palette = "Set2") +
+  facet_wrap(~SG_TITULO) + theme_bw()
+```
+#### Totais por título, por ano, empilhados
+
+```{r}
+ggplot(data_pre, 
+       aes(
+         x = ano_leilao, 
+         y = VA_FINANCEIRO_ACEITO, 
+         fill = SG_TITULO
+       )) + 
+  geom_col() +
+  labs(x = "Ano do Leilão", y = "Valor total", fill = "Tipo de título") + 
+  scale_y_continuous(labels = function(x) {paste(format(round(x/1e9)), "bi")}) +
+  scale_fill_brewer(palette = "Set2")
+```
+#### Totais por título, por ano, empilhados, em percentuais
+
+```{r}
+ggplot(data_pre, 
+       aes(
+         x = ano_leilao, 
+         y = VA_FINANCEIRO_ACEITO, 
+         fill = SG_TITULO
+       )) + 
+  geom_col(position = "fill") +
+  labs(x = "Ano do Leilão", y = "Valor total", fill = "Tipo de título") + 
+  scale_y_continuous(labels = function(x) {paste(format(round(x/1e9)), "bi")}) +
+  scale_fill_brewer(palette = "Set2")
+```
+#### Totais por ano, por faixa de duração -- para cada título
+
+```{r}
+ggplot(data_pre, 
+       aes(
+         x = ano_leilao, 
+         y = VA_FINANCEIRO_ACEITO, 
+         fill = faixa_duracao
+       )) + 
+  geom_col() +
+  labs(x = "Ano do Leilão", y = "Valor total", fill = "Faixa de duração") + 
+  scale_y_continuous(labels = function(x) {paste(format(round(x/1e9)), "bi")}) +
+  scale_fill_discrete_sequential("SunsetDark") +
+  facet_wrap(~SG_TITULO, scales = 'free') +
+  theme_bw()
+```
+
+#### Totais por ano do vencimento (de 2021 em diante), por faixa de duração -- para cada título
+
+```{r}
+ggplot(data_pre %>% filter(year(DT_VENCIMENTO_TITULO) >= 2021), 
+       aes(
+         x = year(DT_VENCIMENTO_TITULO), 
+         y = VA_FINANCEIRO_ACEITO, 
+         fill = faixa_duracao
+       )) + 
+  geom_col() +
+  labs(x = "Ano do Leilão", y = "Valor total", fill = "Faixa de duração") + 
+  scale_y_continuous(labels = function(x) {paste(format(round(x/1e9)), "bi")}) +
+  scale_fill_discrete_sequential("SunsetDark") +
+  facet_wrap(~SG_TITULO) +
+  theme_bw()
+```
+
+#### Totais por ano do vencimento (de 2021 em diante), por título
+
+```{r}
+ggplot(data_pre %>% filter(year(DT_VENCIMENTO_TITULO) >= 2021), 
+       aes(
+         x = year(DT_VENCIMENTO_TITULO), 
+         y = VA_FINANCEIRO_ACEITO, 
+         fill = SG_TITULO
+       )) + 
+  geom_col() +
+  labs(x = "Ano do Leilão", y = "Valor total", fill = "Título") + 
+  scale_y_continuous(labels = function(x) {paste(format(round(x/1e9)), "bi")}) +
+  scale_fill_brewer(palette = 'Set2') +
+  theme_bw()
+```
+
+#### Histograma da duração por tipo de título
+
+```{r}
+ggplot(data_pre) + geom_histogram(aes(x = duracao, fill = SG_TITULO), bins = 100) +
+  scale_fill_brewer(palette = "Set2") +
+  facet_wrap(~SG_TITULO)
+```
+
