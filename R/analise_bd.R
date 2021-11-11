@@ -244,6 +244,43 @@ ggplot(data_pre %>% filter(SG_TITULO == 'LTN'), aes(
 
 
 
+# taxa ao longo do tempo --------------------------------------------------
+
+data_taxa <- data_pre %>% filter(duracao <= 2, SG_TITULO == 'LTN', DT_LEILAO>='2006-01-01') %>%
+  group_by(mes_ano) %>%
+  summarise(taxa = mean(VA_TAXA_ACEITA)) %>%
+  ungroup() %>%
+  mutate(mes = ymd(paste(str_sub(mes_ano, 1, 4), str_sub(mes_ano, 5, 6), '01', sep='-')))
+
+ggplot(data_taxa) + geom_line(aes(x = mes, y = taxa, group = 1), size = 1) +
+  scale_x_date(date_breaks = "1 years", 
+               date_labels = "%Y", 
+               limits = c(as.Date("2006-01-01"), NA), #"1997-12-01"
+               expand = expand_scale(mult = c(.04, .04))) +
+  coord_cartesian(clip = 'off') + 
+  labs(x = NULL, y = NULL) +
+  theme_minimal() +
+  theme(
+    text = element_text(family = "Inter", colour = "grey20"),
+    axis.text = element_text(family = "Inter Light", face = "plain", colour = "grey20", size = 14),
+    title = element_text(family = "Inter", face = "bold", size = 16), # size para o Shiny
+    plot.subtitle = element_text(family = "Inter", face = "plain", size = 20, color = "#1E4C7A"),
+    plot.caption = element_text(face = "italic"),
+    panel.grid.major = element_blank(), 
+    panel.grid.minor = element_blank(),
+    legend.text = element_text(size = 18),
+    legend.title = element_text(size = 18),
+    axis.ticks = element_line(size = 0.5),
+    axis.ticks.length = unit(.25, "cm"),
+    axis.title = element_text(size = 16),
+    legend.position = 'bottom') +
+  theme(legend.position = 'none',
+        panel.grid.major.y = element_blank(),
+        panel.grid.major.x = element_blank(),
+        plot.background = element_rect(color = "#f0f5f7", linetype = "solid", size = 2))
+
+ggsave('taxa.png', plot=last_plot(), width = 16, height = 6)
+
 # export ------------------------------------------------------------------
 
 library(jsonlite)
