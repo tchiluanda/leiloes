@@ -238,7 +238,7 @@ const s = {
 
                     variable : 'duracao',
                     type : 'numeric',
-                    label : 'Tempo até o vencimento (anos)',
+                    label : 'Duração (anos)',
                     zero_based : true,
 
                 },
