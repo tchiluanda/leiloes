@@ -291,7 +291,7 @@ const s = {
             r : null,
             h : null, // altura do rect quando for um barchart
 
-            set_color_and_radius : () => {
+            set_color_and_radius : (titulo) => {
 
                 // color
 
@@ -316,7 +316,7 @@ const s = {
                 const width = s.vis.sizing.canvas_width;
                 const margin = s.vis.sizing.margin;
 
-                const data = s.data.raw.filter(d => d.SG_TITULO == 'LTN'); // fazer o tipo de título ser um parâmetro da função prepare()
+                const data = s.data.raw.filter(d => d.SG_TITULO == titulo); // fazer o tipo de título ser um parâmetro da função prepare()
                 s.data.filtered = data;
 
                 s.vis.scales.h = d3.scaleLinear()
@@ -933,13 +933,18 @@ const s = {
 
     interaction : {
 
-        el : document.querySelector('select#estado'),
+        el : {
+            
+            tipo_grafico: document.querySelector('select#estado'),
+            tipo_titulo : document.querySelector('select#titulo')
+
+        },
 
         seletor_grafico : {
 
             popula : () => {
 
-                const sel = s.interaction.el;
+                const sel = s.interaction.el.tipo_grafico;
 
                 const estados = Object.keys(s.vis.states);
 
@@ -991,9 +996,62 @@ const s = {
     
             monitora : () => {
     
-                const sel = s.interaction.el;
+                const sel = s.interaction.el.tipo_grafico;
     
                 sel.addEventListener('change', s.interaction.seletor_grafico.onUpdate);
+    
+            }
+
+        },
+
+        seletor_titulo : {
+
+            popula : () => {
+
+                const sel = s.interaction.el.tipo_titulo;
+
+                const titulos = s.utils.unique(s.data.raw.map(d => d.SG_TITULO))
+
+                titulos.forEach(titulo => {
+
+                    const new_option = document.createElement("option");
+                        
+                    new_option.label = titulo;
+                    new_option.value = titulo;
+
+                    sel.appendChild(new_option);
+
+                })
+
+            },
+
+            onUpdate : (e) => {
+
+                const novo_titulo = e.target.value;
+                const estado_atual = s.control.current_state;
+
+                // prepare
+                s.vis.scales.set_color_and_radius(novo_titulo);
+                s.vis.prepare();
+
+                // draw axis
+                //s.vis.animate(estado_atual);
+                s.vis.render.axis();
+                s.vis.render.points(estado_atual);
+
+                s.labels.update_labels(estado_atual);
+                //s.vis.animate('inicial');
+
+                //s.control.current_state = 'inicial';
+
+    
+            },
+    
+            monitora : () => {
+    
+                const sel = s.interaction.el.tipo_titulo;
+    
+                sel.addEventListener('change', s.interaction.seletor_titulo.onUpdate);
     
             }
 
@@ -1028,9 +1086,11 @@ const s = {
 
             // popula seletor
             s.interaction.seletor_grafico.popula();
+            s.interaction.seletor_titulo.popula();
 
             // monitora seletor
             s.interaction.seletor_grafico.monitora();
+            s.interaction.seletor_titulo.monitora();
 
             // get canvas size
             s.vis.sizing.get_size();
@@ -1043,12 +1103,12 @@ const s = {
             s.labels.sizing.set_size();
 
             // prepare
-            s.vis.scales.set_color_and_radius();
+            s.vis.scales.set_color_and_radius('LTN');
             s.vis.prepare();
 
             // draw axis
-            s.vis.render.axis();
-            s.vis.render.points('inicial');
+            //s.vis.render.axis();
+            //s.vis.render.points('inicial');
 
             // axis ticks labels e legenda
             s.labels.eixos.populate();
