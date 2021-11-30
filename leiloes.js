@@ -30,7 +30,7 @@ const s = {
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
-                console.log(response.status);
+                //console.log(response.status);
                 return response.json()
 
               })
@@ -362,8 +362,6 @@ const s = {
             // estados
             const states = Object.keys(s.vis.states);
 
-            console.log(states);
-
             // itera sobre os estados
             states.forEach(state => {
 
@@ -377,8 +375,6 @@ const s = {
                 let variavel_y = s.vis.states[state].y.domain_variable ? 
                   s.vis.states[state].y.domain_variable : 
                   s.vis.states[state].y.variable;
-
-                console.log(state, variavel_x, variavel_y);
 
                 const dims = ['x', 'y'];
 
@@ -398,8 +394,6 @@ const s = {
                     }
 
                     if (s.vis.states[state][dim].zero_based) {
-
-                        console.log(state, dim, s.vis.states[state][dim].zero_based);
 
                         let zero;
 
@@ -503,8 +497,6 @@ const s = {
                 const x = s.vis.scales.x['inicial'];
 
                 anos.forEach(ano => {
-
-                    console.log(ano, x(ano), x0)
 
                     ctx.beginPath();
                     ctx.moveTo(x(ano), y0);
@@ -687,8 +679,6 @@ const s = {
             if (s.control.transition_rect_circle == 'to rect') {
 
                 // primeiro vira quadrado, depois ajusta tamanho retangulo, depois movimenta
-
-                console.log('aqui, to square!')
 
                 const tl = new gsap.timeline()
                 .to(
